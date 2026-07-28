@@ -1,0 +1,301 @@
+/* Hero Slideshow Section */
+
+.hero-slideshow {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  background: #000;
+}
+
+.hero-slideshow.height-small { height: 40vh; min-height: 320px; }
+.hero-slideshow.height-medium { height: 60vh; min-height: 420px; }
+.hero-slideshow.height-large { height: 80vh; min-height: 520px; }
+.hero-slideshow.height-fullscreen { height: 100vh; }
+
+.hero-slideshow__track {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.hero-slideshow__slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.8s ease;
+  pointer-events: none;
+}
+
+.hero-slideshow__slide.is-active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.hero-slideshow__media {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.hero-slideshow__image,
+.hero-slideshow__media video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.hero-slideshow__image.placeholder {
+  background-color: #f3f3f3;
+  fill: #c9c9c9;
+}
+
+.hero-slideshow__overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* Content positioning */
+.hero-slideshow__content {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  width: 100%;
+  max-width: 620px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 3rem 4rem;
+  box-sizing: border-box;
+}
+
+.content-pos-top-left     { justify-content: flex-start; align-items: flex-start; text-align: left; margin-right: auto; }
+.content-pos-top-center   { justify-content: flex-start; align-items: center; text-align: center; margin-inline: auto; }
+.content-pos-top-right    { justify-content: flex-start; align-items: flex-end; text-align: right; margin-left: auto; }
+.content-pos-middle-left  { justify-content: center; align-items: flex-start; text-align: left; margin-right: auto; }
+.content-pos-middle-center{ justify-content: center; align-items: center; text-align: center; margin-inline: auto; }
+.content-pos-middle-right { justify-content: center; align-items: flex-end; text-align: right; margin-left: auto; }
+.content-pos-bottom-left  { justify-content: flex-end; align-items: flex-start; text-align: left; margin-right: auto; }
+.content-pos-bottom-center{ justify-content: flex-end; align-items: center; text-align: center; margin-inline: auto; }
+.content-pos-bottom-right { justify-content: flex-end; align-items: flex-end; text-align: right; margin-left: auto; }
+
+.hero-slideshow__eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+.hero-slideshow__eyebrow-line {
+  width: 32px;
+  height: 1px;
+  border: none;
+  background: currentColor;
+  opacity: 0.6;
+  margin: 0;
+}
+
+.hero-slideshow__heading {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-weight: 400;
+  line-height: 1.1;
+  margin: 0;
+}
+
+.heading-size-small  { font-size: clamp(1.75rem, 3vw, 2.5rem); }
+.heading-size-medium { font-size: clamp(2.25rem, 4.5vw, 3.5rem); }
+.heading-size-large  { font-size: clamp(2.75rem, 6vw, 4.5rem); }
+
+.hero-slideshow__description {
+  font-size: 1rem;
+  line-height: 1.5;
+  opacity: 0.9;
+}
+
+.hero-slideshow__description p {
+  margin: 0;
+}
+
+.hero-slideshow__buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+/* Button appearance itself lives in assets/global.css (.button,
+   .button--primary, .button--secondary) since it's reused
+   theme-wide. Only slideshow-specific button LAYOUT stays here. */
+
+/* Arrows */
+.hero-slideshow__arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 3;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  opacity: 0.85;
+  transition: opacity 0.2s ease;
+}
+.hero-slideshow__arrow:hover { opacity: 1; }
+.hero-slideshow__arrow svg { width: 28px; height: 28px; }
+.hero-slideshow__arrow--prev { left: 1.5rem; }
+.hero-slideshow__arrow--next { right: 1.5rem; }
+
+/* Counter */
+.hero-slideshow__counter {
+  position: absolute;
+  top: 1.75rem;
+  right: 2rem;
+  z-index: 3;
+  color: #fff;
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+}
+
+/* Dots */
+.hero-slideshow__dots {
+  position: absolute;
+  bottom: 1.75rem;
+  right: 2rem;
+  z-index: 3;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.hero-slideshow__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+.hero-slideshow__dot.is-active {
+  background: #fff;
+  transform: scale(1.2);
+}
+
+/* Progress bar */
+.hero-slideshow__progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.25);
+  z-index: 3;
+}
+
+.hero-slideshow__progress-bar {
+  height: 100%;
+  width: 0%;
+  background: #fff;
+}
+
+.hero-slideshow__progress-bar.is-animating {
+  transition: width linear;
+}
+
+/* Scroll indicator */
+.hero-slideshow__scroll {
+  position: absolute;
+  bottom: 1.75rem;
+  right: 2rem;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  color: #fff;
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-decoration: none;
+}
+
+.hero-slideshow__scroll svg {
+  width: 16px;
+  height: 16px;
+  animation: hero-scroll-bounce 1.8s infinite;
+}
+
+@keyframes hero-scroll-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(4px); }
+}
+
+/* Tablet */
+@media screen and (max-width: 989px) {
+  .hero-slideshow__content {
+    max-width: 480px;
+    padding: 2.5rem 2.5rem;
+  }
+
+  .hero-slideshow__scroll,
+  .hero-slideshow__counter {
+    bottom: 1.25rem;
+    right: 1.25rem;
+  }
+}
+
+/* Mobile */
+@media screen and (max-width: 749px) {
+  .hero-slideshow.height-small { height: 55vh; }
+  .hero-slideshow.height-medium { height: 70vh; }
+  .hero-slideshow.height-large { height: 85vh; }
+
+  .hero-slideshow__content {
+    max-width: 100%;
+    padding: 1.75rem 1.25rem;
+  }
+
+  .hero-slideshow__arrow {
+    display: none;
+  }
+
+  .hero-slideshow__counter {
+    top: 1.25rem;
+    right: 1.25rem;
+  }
+
+  .hero-slideshow__dots {
+    left: 1.25rem;
+    right: auto;
+    bottom: 1.25rem;
+  }
+
+  .hero-slideshow__scroll {
+    right: 1.25rem;
+    bottom: 1.25rem;
+  }
+
+  /* On mobile, add class="button button--primary button--small"
+     (or --secondary) in the liquid file for tighter padding,
+     rather than overriding size here. */
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-slideshow__slide,
+  .hero-slideshow__scroll svg {
+    transition: none;
+    animation: none;
+  }
+}

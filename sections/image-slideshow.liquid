@@ -1,0 +1,375 @@
+{{ 'section-image-slideshow.css' | asset_url | stylesheet_tag }}
+{%- liquid
+  assign height_class = 'height-' | append: section.settings.height
+  assign nav_style = section.settings.navigation_style
+  assign slide_count = section.blocks.size
+-%}
+
+<div
+  class="hero-slideshow {{ height_class }}"
+  id="hero-slideshow-{{ section.id }}"
+  data-section-id="{{ section.id }}"
+  data-autoplay="{{ section.settings.autoplay }}"
+  data-autoplay-speed="{{ section.settings.autoplay_speed | times: 1000 }}"
+  data-nav-style="{{ nav_style }}"
+>
+  <div class="hero-slideshow__track">
+    {%- for block in section.blocks -%}
+      {%- liquid
+        assign slide = block.settings
+        assign position_class = 'content-pos-' | append: slide.content_position
+      -%}
+      <div
+        class="hero-slideshow__slide {% if forloop.first %}is-active{% endif %}"
+        data-slide-index="{{ forloop.index0 }}"
+        {{ block.shopify_attributes }}
+      >
+        <div class="hero-slideshow__media">
+          {%- if slide.video != blank -%}
+            {{ slide.video | video_tag: autoplay: true, loop: true, muted: true, controls: false, image_size: '1600x' }}
+          {%- elsif slide.image != blank -%}
+            {{
+              slide.image
+              | image_url: width: 1600
+              | image_tag:
+                loading: forloop.first,
+                class: 'hero-slideshow__image',
+                widths: '750, 1100, 1500, 1800, 2000',
+                sizes: '100vw'
+            }}
+          {%- else -%}
+            {{ 'lifestyle-1' | placeholder_svg_tag: 'hero-slideshow__image placeholder' }}
+          {%- endif -%}
+          <div
+            class="hero-slideshow__overlay"
+            style="background: {{ slide.overlay_color }}; opacity: {{ slide.overlay_opacity | divided_by: 100.0 }};"
+          ></div>
+        </div>
+
+        <div class="hero-slideshow__content {{ position_class }}" style="color: {{ slide.text_color }};">
+          {%- if slide.eyebrow_text != blank -%}
+            <div class="hero-slideshow__eyebrow">
+              <span>{{ slide.eyebrow_text }}</span>
+              <hr class="hero-slideshow__eyebrow-line">
+            </div>
+          {%- endif -%}
+
+          {%- if slide.heading != blank -%}
+            <h2 class="hero-slideshow__heading heading-size-{{ slide.heading_size }}">
+              {{ slide.heading }}
+            </h2>
+          {%- endif -%}
+
+          {%- if slide.description != blank -%}
+            <div class="hero-slideshow__description">{{ slide.description }}</div>
+          {%- endif -%}
+
+          {%- if slide.button1_label != blank or slide.button2_label != blank -%}
+            <div class="hero-slideshow__buttons">
+              {%- if slide.button1_label != blank -%}
+                <a
+                  {% if slide.button1_link != blank %}
+                    href="{{ slide.button1_link }}"
+                  {% else %}
+                    role="link" aria-disabled="true"
+                  {% endif %}
+                  class="button button--primary"
+                >
+                  {{ slide.button1_label }}
+                </a>
+              {%- endif -%}
+              {%- if slide.button2_label != blank -%}
+                <a
+                  {% if slide.button2_link != blank %}
+                    href="{{ slide.button2_link }}"
+                  {% else %}
+                    role="link" aria-disabled="true"
+                  {% endif %}
+                  class="button button--secondary"
+                >
+                  {{ slide.button2_label }}
+                </a>
+              {%- endif -%}
+            </div>
+          {%- endif -%}
+        </div>
+      </div>
+    {%- endfor -%}
+  </div>
+
+  {%- if nav_style == 'arrows' or nav_style == 'both' -%}
+    <button
+      type="button"
+      class="hero-slideshow__arrow hero-slideshow__arrow--prev"
+      aria-label="{{ 'sections.slideshow.previous_slide' | t: default: 'Previous slide' }}"
+    >
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+        <path d="M15 18l-6-6 6-6"/>
+      </svg>
+    </button>
+    <button
+      type="button"
+      class="hero-slideshow__arrow hero-slideshow__arrow--next"
+      aria-label="{{ 'sections.slideshow.next_slide' | t: default: 'Next slide' }}"
+    >
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+        <path d="M9 18l6-6-6-6"/>
+      </svg>
+    </button>
+  {%- endif -%}
+
+  {%- if section.settings.show_counter -%}
+    <div class="hero-slideshow__counter" aria-hidden="true">
+      <span class="hero-slideshow__counter-current">01</span> /
+      <span class="hero-slideshow__counter-total">{{ slide_count | prepend: '00' | slice: -2, 2 }}</span>
+    </div>
+  {%- endif -%}
+
+  {%- if nav_style == 'dots' or nav_style == 'both' -%}
+    <div class="hero-slideshow__dots" role="tablist">
+      {%- for block in section.blocks -%}
+        <button
+          type="button"
+          class="hero-slideshow__dot {% if forloop.first %}is-active{% endif %}"
+          data-dot-index="{{ forloop.index0 }}"
+          role="tab"
+          aria-label="{{ 'sections.slideshow.go_to_slide' | t: index: forloop.index }}"
+        ></button>
+      {%- endfor -%}
+    </div>
+  {%- endif -%}
+
+  {%- if section.settings.show_progress_bar -%}
+    <div class="hero-slideshow__progress">
+      <div class="hero-slideshow__progress-bar"></div>
+    </div>
+  {%- endif -%}
+
+  {%- if section.settings.show_scroll_indicator -%}
+    <a href="#" class="hero-slideshow__scroll" aria-hidden="true">
+      <span>{{ section.settings.scroll_indicator_text | default: 'Scroll' }}</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M12 4v16m0 0l-6-6m6 6l6-6"/>
+      </svg>
+    </a>
+  {%- endif -%}
+</div>
+
+<script src="{{ 'section-image-slideshow.js' | asset_url }}" defer="defer"></script>
+
+{% schema %}
+{
+  "name": "Hero slideshow",
+  "tag": "section",
+  "class": "section-hero-slideshow",
+  "settings": [
+    {
+      "type": "select",
+      "id": "height",
+      "label": "Slide height",
+      "options": [
+        { "value": "small", "label": "Small" },
+        { "value": "medium", "label": "Medium" },
+        { "value": "large", "label": "Large" },
+        { "value": "fullscreen", "label": "Full screen" }
+      ],
+      "default": "large"
+    },
+    {
+      "type": "header",
+      "content": "Autoplay"
+    },
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "label": "Autoplay slides",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "autoplay_speed",
+      "label": "Change slides every",
+      "min": 3,
+      "max": 10,
+      "step": 1,
+      "unit": "s",
+      "default": 6
+    },
+    {
+      "type": "header",
+      "content": "Navigation"
+    },
+    {
+      "type": "select",
+      "id": "navigation_style",
+      "label": "Navigation style",
+      "options": [
+        { "value": "arrows", "label": "Arrows only" },
+        { "value": "dots", "label": "Dots only" },
+        { "value": "both", "label": "Arrows and dots" },
+        { "value": "none", "label": "None" }
+      ],
+      "default": "arrows"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_counter",
+      "label": "Show slide counter",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_progress_bar",
+      "label": "Show progress bar",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Scroll indicator"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_scroll_indicator",
+      "label": "Show scroll indicator",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "scroll_indicator_text",
+      "label": "Scroll indicator text",
+      "default": "Scroll"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "slide",
+      "name": "Slide",
+      "settings": [
+        {
+          "type": "header",
+          "content": "Media"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "video",
+          "id": "video",
+          "label": "Video (overrides image)"
+        },
+        {
+          "type": "header",
+          "content": "Content"
+        },
+        {
+          "type": "select",
+          "id": "content_position",
+          "label": "Content position",
+          "options": [
+            { "value": "top-left", "label": "Top left" },
+            { "value": "top-center", "label": "Top center" },
+            { "value": "top-right", "label": "Top right" },
+            { "value": "middle-left", "label": "Middle left" },
+            { "value": "middle-center", "label": "Middle center" },
+            { "value": "middle-right", "label": "Middle right" },
+            { "value": "bottom-left", "label": "Bottom left" },
+            { "value": "bottom-center", "label": "Bottom center" },
+            { "value": "bottom-right", "label": "Bottom right" }
+          ],
+          "default": "bottom-left"
+        },
+        {
+          "type": "text",
+          "id": "eyebrow_text",
+          "label": "Eyebrow text",
+          "default": "New collection"
+        },
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading",
+          "default": "Crafted for modern living"
+        },
+        {
+          "type": "select",
+          "id": "heading_size",
+          "label": "Heading size",
+          "options": [
+            { "value": "small", "label": "Small" },
+            { "value": "medium", "label": "Medium" },
+            { "value": "large", "label": "Large" }
+          ],
+          "default": "large"
+        },
+        {
+          "type": "richtext",
+          "id": "description",
+          "label": "Description",
+          "default": "<p>Timeless design. Premium materials. Made for everyday luxury.</p>"
+        },
+        {
+          "type": "color",
+          "id": "text_color",
+          "label": "Text color",
+          "default": "#FFFFFF"
+        },
+        {
+          "type": "header",
+          "content": "Buttons"
+        },
+        {
+          "type": "text",
+          "id": "button1_label",
+          "label": "First button label",
+          "default": "Shop collection"
+        },
+        {
+          "type": "url",
+          "id": "button1_link",
+          "label": "First button link"
+        },
+        {
+          "type": "text",
+          "id": "button2_label",
+          "label": "Second button label",
+          "default": "Learn more"
+        },
+        {
+          "type": "url",
+          "id": "button2_link",
+          "label": "Second button link"
+        },
+        {
+          "type": "header",
+          "content": "Overlay"
+        },
+        {
+          "type": "color",
+          "id": "overlay_color",
+          "label": "Overlay color",
+          "default": "#000000"
+        },
+        {
+          "type": "range",
+          "id": "overlay_opacity",
+          "label": "Overlay opacity",
+          "min": 0,
+          "max": 90,
+          "step": 5,
+          "unit": "%",
+          "default": 40
+        }
+      ]
+    }
+  ],
+  "max_blocks": 6,
+  "presets": [
+    {
+      "name": "Hero slideshow",
+      "blocks": [{ "type": "slide" }]
+    }
+  ]
+}
+{% endschema %}

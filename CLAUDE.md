@@ -1,0 +1,1 @@
+/Users/praveenmishra/Downloads/Theme/lumetra-praveen/AGENTS.md
