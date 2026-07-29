@@ -1,0 +1,52 @@
+{{ 'paragraph-block.css' | asset_url | stylesheet_tag }}
+
+<div
+  class="paragraph-block"
+  style="font-size: {{ block.settings.size }}px; color: {{ block.settings.color }}; max-width: {{ block.settings.max_width }}px;"
+  {{ block.shopify_attributes }}
+>
+  {{ block.settings.content }}
+</div>
+
+{% schema %}
+{
+  "name": "Paragraph",
+  "settings": [
+    {
+      "type": "richtext",
+      "id": "content",
+      "label": "Content",
+      "default": "<p>Timeless design. Premium materials. Made for everyday luxury.</p>"
+    },
+    {
+      "type": "range",
+      "id": "size",
+      "label": "Font size",
+      "min": 12,
+      "max": 32,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "color",
+      "id": "color",
+      "label": "Text color",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "range",
+      "id": "max_width",
+      "label": "Max width",
+      "min": 200,
+      "max": 800,
+      "step": 20,
+      "unit": "px",
+      "default": 480
+    }
+  ],
+  "presets": [
+    { "name": "Paragraph" }
+  ]
+}
+{% endschema %}

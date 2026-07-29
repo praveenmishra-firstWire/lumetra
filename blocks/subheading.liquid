@@ -1,0 +1,72 @@
+{{ 'subheading-block.css' | asset_url | stylesheet_tag }}
+
+<div class="subheading-block {% if block.settings.uppercase %}is-uppercase{% endif %}" {{ block.shopify_attributes }}>
+  {%- if block.settings.show_line and block.settings.line_position == 'before' -%}
+    <hr class="subheading-block__line">
+  {%- endif -%}
+  <span class="subheading-block__text" style="font-size: {{ block.settings.size }}px; color: {{ block.settings.color }};">
+    {{ block.settings.text }}
+  </span>
+  {%- if block.settings.show_line and block.settings.line_position == 'after' -%}
+    <hr class="subheading-block__line">
+  {%- endif -%}
+</div>
+
+{% schema %}
+{
+  "name": "Subheading",
+  "settings": [
+    {
+      "type": "text",
+      "id": "text",
+      "label": "Text",
+      "default": "New collection"
+    },
+    {
+      "type": "range",
+      "id": "size",
+      "label": "Font size",
+      "min": 10,
+      "max": 32,
+      "step": 1,
+      "unit": "px",
+      "default": 13
+    },
+    {
+      "type": "checkbox",
+      "id": "uppercase",
+      "label": "Uppercase",
+      "default": true
+    },
+    {
+      "type": "color",
+      "id": "color",
+      "label": "Text color",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "header",
+      "content": "Divider line"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_line",
+      "label": "Show line",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "line_position",
+      "label": "Line position",
+      "options": [
+        { "value": "before", "label": "Before text" },
+        { "value": "after", "label": "After text" }
+      ],
+      "default": "after"
+    }
+  ],
+  "presets": [
+    { "name": "Subheading" }
+  ]
+}
+{% endschema %}

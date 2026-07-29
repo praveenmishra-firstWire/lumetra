@@ -1,0 +1,21 @@
+.subheading-block {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+}
+
+.subheading-block.is-uppercase .subheading-block__text {
+  text-transform: uppercase;
+}
+
+.subheading-block__line {
+  flex: 0 0 32px;
+  width: 32px;
+  height: 1px;
+  border: none;
+  background: currentColor;
+  opacity: 0.6;
+  margin: 0;
+}

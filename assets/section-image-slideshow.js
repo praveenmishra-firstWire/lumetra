@@ -144,3 +144,5 @@ document.addEventListener('shopify:section:load', (event) => {
     slideshow.dataset.initialized = 'true';
   }
 });
+
+

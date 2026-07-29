@@ -1,0 +1,297 @@
+{{ 'icons-with-text.css' | asset_url | stylesheet_tag }}
+
+{%- style -%}
+  {{ section.settings.heading_font | font_face: font_display: 'swap' }}
+  {{ section.settings.text_font | font_face: font_display: 'swap' }}
+
+  #shopify-section-{{ section.id }} {
+    --icon-color: {{ section.settings.icon_color }};
+    --icon-size: {{ section.settings.icon_size }}px;
+    --iwt-bg: {{ section.settings.background_color }};
+    --heading-color: {{ section.settings.heading_color }};
+    --text-color: {{ section.settings.text_color }};
+    /* --content-width: {{ section.settings.content_width }}px; */
+    --iwt-padding-top: {{ section.settings.padding_top }}px;
+    --iwt-padding-bottom: {{ section.settings.padding_bottom }}px;
+    --heading-font-family: {{ section.settings.heading_font.family }}, {{ section.settings.heading_font.fallback_families }};
+    --heading-font-style: {{ section.settings.heading_font.style }};
+    --heading-font-weight: {{ section.settings.heading_font.weight }};
+    --text-font-family: {{ section.settings.text_font.family }}, {{ section.settings.text_font.fallback_families }};
+  }
+{%- endstyle -%}
+
+<section
+  class="icons-with-text{% unless section.settings.enable_animation %} icons-with-text--no-animate{% endunless %}"
+  id="IconsWithText-{{ section.id }}"
+>
+  <div class="icons-with-text__inner">
+    {%- if section.settings.heading != blank or section.settings.subheading != blank -%}
+      <div class="icons-with-text__header">
+        {%- if section.settings.heading != blank -%}
+          <h2 class="icons-with-text__heading">{{ section.settings.heading }}</h2>
+        {%- endif -%}
+        {%- if section.settings.subheading != blank -%}
+          <p class="icons-with-text__subheading">{{ section.settings.subheading }}</p>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+
+    {%- if section.blocks.size > 0 -%}
+      <div
+        class="icons-with-text__grid"
+        data-layout-desktop="{{ section.settings.layout_desktop }}"
+        data-layout-mobile="{{ section.settings.layout_mobile }}"
+        style="--cols-desktop: {{ section.settings.columns_desktop }}; --cols-mobile: {{ section.settings.columns_mobile }};"
+      >
+        {%- for block in section.blocks -%}
+          {%- render 'icons-with-text-item',
+            block: block,
+            content_position_desktop: section.settings.content_position_desktop,
+            content_position_mobile: section.settings.content_position_mobile
+          -%}
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
+  </div>
+</section>
+
+<script src="{{ 'icons-text.js' | asset_url }}" defer="defer"></script>
+
+{% schema %}
+{
+  "name": "Icons with text",
+  "class": "shopify-section--icons-with-text",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Heading"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Why shop with us?"
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "Sub Heading"
+    },
+    {
+      "type": "font_picker",
+      "id": "heading_font",
+      "label": "Heading font",
+      "default": "work_sans_n4"
+    },
+    {
+      "type": "font_picker",
+      "id": "text_font",
+      "label": "Body font",
+      "default": "work_sans_n4"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "columns_desktop",
+      "label": "Icons per row \u2014 desktop",
+      "min": 2,
+      "max": 6,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "type": "range",
+      "id": "columns_mobile",
+      "label": "Icons per row \u2014 mobile",
+      "min": 1,
+      "max": 3,
+      "step": 1,
+      "default": 1
+    },
+    {
+      "type": "select",
+      "id": "layout_desktop",
+      "label": "Layout \u2014 desktop",
+      "options": [
+        { "value": "grid", "label": "Grid" },
+        { "value": "slider", "label": "Slider" }
+      ],
+      "default": "grid"
+    },
+    {
+      "type": "select",
+      "id": "layout_mobile",
+      "label": "Layout \u2014 mobile",
+      "options": [
+        { "value": "grid", "label": "Grid" },
+        { "value": "slider", "label": "Slider" }
+      ],
+      "default": "grid"
+    },
+    {
+      "type": "select",
+      "id": "content_position_desktop",
+      "label": "Icon/text position \u2014 desktop",
+      "options": [
+        { "value": "stacked", "label": "Icon above text" },
+        { "value": "side", "label": "Icon left, text right" }
+      ],
+      "default": "stacked"
+    },
+    {
+      "type": "select",
+      "id": "content_position_mobile",
+      "label": "Icon/text position \u2014 mobile",
+      "options": [
+        { "value": "stacked", "label": "Icon above text" },
+        { "value": "side", "label": "Icon left, text right" }
+      ],
+      "default": "stacked"
+    },
+    {
+      "type": "range",
+      "id": "icon_size",
+      "label": "Icon width",
+      "min": 24,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_animation",
+      "label": "Animate icons on scroll and hover",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Section background",
+      "default": "#00000000"
+    },
+    {
+      "type": "color",
+      "id": "icon_color",
+      "label": "Icon color",
+      "default": "#1a1a1a"
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Heading color",
+      "default": "#1a1a1a"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#666666"
+    },
+    {
+      "type": "header",
+      "content": "Section padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding",
+      "min": 0,
+      "max": 150,
+      "step": 10,
+      "unit": "px",
+      "default": 70
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding",
+      "min": 0,
+      "max": 150,
+      "step": 10,
+      "unit": "px",
+      "default": 70
+    }
+  ],
+  "blocks": [
+    {
+      "type": "icon_item",
+      "name": "Icon",
+      "settings": [
+        {
+          "type": "select",
+          "id": "icon",
+          "label": "Icon",
+          "options": [
+            { "value": "eye", "label": "Eye" },
+            { "value": "heart", "label": "Heart" },
+            { "value": "person", "label": "Person" },
+            { "value": "star", "label": "Star" },
+            { "value": "shield", "label": "Shield" },
+            { "value": "leaf", "label": "Leaf" },
+            { "value": "gift", "label": "Gift" },
+            { "value": "truck", "label": "Truck" },
+            { "value": "headset", "label": "Headset" },
+            { "value": "lock", "label": "Lock" },
+            { "value": "sparkle", "label": "Sparkle" },
+            { "value": "compass", "label": "Compass" },
+            { "value": "thumbs-up", "label": "Thumbs up" },
+            { "value": "sun", "label": "Sun" },
+            { "value": "box", "label": "Box" },
+            { "value": "award", "label": "Award" }
+          ],
+          "default": "star"
+        },
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading",
+          "default": "Feature heading"
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Text",
+          "default": "<p>A short line describing this feature.</p>"
+        }
+      ]
+    }
+  ],
+  "max_blocks": 12,
+  "presets": [
+    {
+      "name": "Icons with text",
+      "blocks": [
+        {
+          "type": "icon_item",
+          "settings": {
+            "icon": "eye",
+            "heading": "Intentional design",
+            "text": "<p>Everything we do starts with why</p>"
+          }
+        },
+        {
+          "type": "icon_item",
+          "settings": { "icon": "heart", "heading": "Made with care", "text": "<p>We believe in building better</p>" }
+        },
+        {
+          "type": "icon_item",
+          "settings": {
+            "icon": "person",
+            "heading": "A team with a goal",
+            "text": "<p>Real people making great products</p>"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

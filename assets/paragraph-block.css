@@ -1,0 +1,12 @@
+.paragraph-block {
+  line-height: 1.5;
+  opacity: 0.9;
+}
+
+.paragraph-block p {
+  margin: 0;
+}
+
+.paragraph-block p + p {
+  margin-top: 0.75em;
+}

@@ -1,0 +1,25 @@
+{%- comment -%}
+  Renders a single icon + heading + text item.
+  Expects: block, content_position_desktop, content_position_mobile
+{%- endcomment -%}
+
+<div
+  class="icon-block"
+  data-position-desktop="{{ content_position_desktop }}"
+  data-position-mobile="{{ content_position_mobile }}"
+  {{ block.shopify_attributes }}
+>
+  <div class="icon-block__icon">
+    {%- render 'icons-with-text-icon', icon: block.settings.icon -%}
+  </div>
+  {%- if block.settings.heading != blank or block.settings.text != blank -%}
+    <div class="icon-block__body">
+      {%- if block.settings.heading != blank -%}
+        <h3 class="icon-block__heading">{{ block.settings.heading }}</h3>
+      {%- endif -%}
+      {%- if block.settings.text != blank -%}
+        <div class="icon-block__text">{{ block.settings.text }}</div>
+      {%- endif -%}
+    </div>
+  {%- endif -%}
+</div>

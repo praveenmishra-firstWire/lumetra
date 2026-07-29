@@ -7,10 +7,24 @@
   background: #000;
 }
 
-.hero-slideshow.height-small { height: 40vh; min-height: 320px; }
-.hero-slideshow.height-medium { height: 60vh; min-height: 420px; }
-.hero-slideshow.height-large { height: 80vh; min-height: 520px; }
-.hero-slideshow.height-fullscreen { height: 100vh; }
+.hero-slideshow.height-small {
+  height: 40vh;
+  min-height: 320px;
+}
+
+.hero-slideshow.height-medium {
+  height: 60vh;
+  min-height: 420px;
+}
+
+.hero-slideshow.height-large {
+  height: 80vh;
+  min-height: 520px;
+}
+
+.hero-slideshow.height-fullscreen {
+  height: 100vh;
+}
 
 .hero-slideshow__track {
   position: relative;
@@ -73,15 +87,68 @@
   box-sizing: border-box;
 }
 
-.content-pos-top-left     { justify-content: flex-start; align-items: flex-start; text-align: left; margin-right: auto; }
-.content-pos-top-center   { justify-content: flex-start; align-items: center; text-align: center; margin-inline: auto; }
-.content-pos-top-right    { justify-content: flex-start; align-items: flex-end; text-align: right; margin-left: auto; }
-.content-pos-middle-left  { justify-content: center; align-items: flex-start; text-align: left; margin-right: auto; }
-.content-pos-middle-center{ justify-content: center; align-items: center; text-align: center; margin-inline: auto; }
-.content-pos-middle-right { justify-content: center; align-items: flex-end; text-align: right; margin-left: auto; }
-.content-pos-bottom-left  { justify-content: flex-end; align-items: flex-start; text-align: left; margin-right: auto; }
-.content-pos-bottom-center{ justify-content: flex-end; align-items: center; text-align: center; margin-inline: auto; }
-.content-pos-bottom-right { justify-content: flex-end; align-items: flex-end; text-align: right; margin-left: auto; }
+.content-pos-top-left {
+  justify-content: flex-start;
+  align-items: flex-start;
+  text-align: left;
+  margin-right: auto;
+}
+
+.content-pos-top-center {
+  justify-content: flex-start;
+  align-items: center;
+  text-align: center;
+  margin-inline: auto;
+}
+
+.content-pos-top-right {
+  justify-content: flex-start;
+  align-items: flex-end;
+  text-align: right;
+  margin-left: auto;
+}
+
+.content-pos-middle-left {
+  justify-content: center;
+  align-items: flex-start;
+  text-align: left;
+  margin-right: auto;
+}
+
+.content-pos-middle-center {
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  margin-inline: auto;
+}
+
+.content-pos-middle-right {
+  justify-content: center;
+  align-items: flex-end;
+  text-align: right;
+  margin-left: auto;
+}
+
+.content-pos-bottom-left {
+  justify-content: flex-end;
+  align-items: flex-start;
+  text-align: left;
+  margin-right: auto;
+}
+
+.content-pos-bottom-center {
+  justify-content: flex-end;
+  align-items: center;
+  text-align: center;
+  margin-inline: auto;
+}
+
+.content-pos-bottom-right {
+  justify-content: flex-end;
+  align-items: flex-end;
+  text-align: right;
+  margin-left: auto;
+}
 
 .hero-slideshow__eyebrow {
   display: flex;
@@ -109,9 +176,17 @@
   margin: 0;
 }
 
-.heading-size-small  { font-size: clamp(1.75rem, 3vw, 2.5rem); }
-.heading-size-medium { font-size: clamp(2.25rem, 4.5vw, 3.5rem); }
-.heading-size-large  { font-size: clamp(2.75rem, 6vw, 4.5rem); }
+.heading-size-small {
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+}
+
+.heading-size-medium {
+  font-size: clamp(2.25rem, 4.5vw, 3.5rem);
+}
+
+.heading-size-large {
+  font-size: clamp(2.75rem, 6vw, 4.5rem);
+}
 
 .hero-slideshow__description {
   font-size: 1rem;
@@ -131,8 +206,8 @@
 }
 
 /* Button appearance itself lives in assets/global.css (.button,
-   .button--primary, .button--secondary) since it's reused
-   theme-wide. Only slideshow-specific button LAYOUT stays here. */
+  .button--primary, .button--secondary) since it's reused
+  theme-wide. Only slideshow-specific button LAYOUT stays here. */
 
 /* Arrows */
 .hero-slideshow__arrow {
@@ -152,10 +227,23 @@
   opacity: 0.85;
   transition: opacity 0.2s ease;
 }
-.hero-slideshow__arrow:hover { opacity: 1; }
-.hero-slideshow__arrow svg { width: 28px; height: 28px; }
-.hero-slideshow__arrow--prev { left: 1.5rem; }
-.hero-slideshow__arrow--next { right: 1.5rem; }
+
+.hero-slideshow__arrow:hover {
+  opacity: 1;
+}
+
+.hero-slideshow__arrow svg {
+  width: 28px;
+  height: 28px;
+}
+
+.hero-slideshow__arrow--prev {
+  left: 1.5rem;
+}
+
+.hero-slideshow__arrow--next {
+  right: 1.5rem;
+}
 
 /* Counter */
 .hero-slideshow__counter {
@@ -188,6 +276,7 @@
   cursor: pointer;
   transition: background 0.2s ease, transform 0.2s ease;
 }
+
 .hero-slideshow__dot.is-active {
   background: #fff;
   transform: scale(1.2);
@@ -238,8 +327,15 @@
 }
 
 @keyframes hero-scroll-bounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(4px); }
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(4px);
+  }
 }
 
 /* Tablet */
@@ -258,9 +354,17 @@
 
 /* Mobile */
 @media screen and (max-width: 749px) {
-  .hero-slideshow.height-small { height: 55vh; }
-  .hero-slideshow.height-medium { height: 70vh; }
-  .hero-slideshow.height-large { height: 85vh; }
+  .hero-slideshow.height-small {
+    height: 55vh;
+  }
+
+  .hero-slideshow.height-medium {
+    height: 70vh;
+  }
+
+  .hero-slideshow.height-large {
+    height: 85vh;
+  }
 
   .hero-slideshow__content {
     max-width: 100%;
@@ -288,11 +392,12 @@
   }
 
   /* On mobile, add class="button button--primary button--small"
-     (or --secondary) in the liquid file for tighter padding,
-     rather than overriding size here. */
+    (or --secondary) in the liquid file for tighter padding,
+    rather than overriding size here. */
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   .hero-slideshow__slide,
   .hero-slideshow__scroll svg {
     transition: none;

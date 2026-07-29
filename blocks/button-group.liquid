@@ -1,0 +1,50 @@
+{{ 'button-group-block.css' | asset_url | stylesheet_tag }}
+
+<div
+  class="button-group-block"
+  style="justify-content: {{ block.settings.alignment }}; gap: {{ block.settings.gap }}px;"
+  {{ block.shopify_attributes }}
+>
+  {% content_for 'blocks' %}
+</div>
+
+{% schema %}
+{
+  "name": "Button group",
+  "settings": [
+    {
+      "type": "select",
+      "id": "alignment",
+      "label": "Alignment",
+      "options": [
+        { "value": "flex-start", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "flex-end", "label": "Right" }
+      ],
+      "default": "flex-start"
+    },
+    {
+      "type": "range",
+      "id": "gap",
+      "label": "Spacing between buttons",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 16
+    }
+  ],
+  "blocks": [
+    { "type": "button" }
+  ],
+  "presets": [
+    {
+      "name": "Button group",
+      "blocks": [
+        { "type": "button" },
+        { "type": "button", "settings": { "label": "Learn more", "style": "secondary" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,104 @@
+{{ 'heading-block.css' | asset_url | stylesheet_tag }}
+
+{%- liquid
+  assign tag = block.settings.heading_type
+  assign content_html = block.settings.content
+  assign highlight_type = block.settings.highlight_type
+
+  if block.settings.enable_highlight and content_html contains '<em>'
+    assign em_open = '<em class="heading-highlight heading-highlight--' | append: highlight_type | append: '" data-highlight="' | append: highlight_type | append: '" style="--highlight-color: ' | append: block.settings.highlight_color | append: ';">'
+    assign content_html = content_html | replace: '<em>', em_open
+  endif
+-%}
+
+<{{ tag }}
+  class="heading-block {% if block.settings.heading_uppercase %}is-uppercase{% endif %}"
+  style="font-size: {{ block.settings.heading_size }}px;"
+  {{ block.shopify_attributes }}
+>
+  {{ content_html }}
+</{{ tag }}>
+
+<script src="{{ 'heading-block.js' | asset_url }}" defer="defer"></script>
+
+{% schema %}
+{
+  "name": "Heading",
+  "settings": [
+    {
+      "type": "inline_richtext",
+      "id": "content",
+      "label": "Content",
+      "default": "Tools Crafted for *Relentless*"
+    },
+    {
+      "type": "select",
+      "id": "heading_type",
+      "label": "Heading type",
+      "options": [
+        { "value": "h1", "label": "H1" },
+        { "value": "h2", "label": "H2" },
+        { "value": "h3", "label": "H3" },
+        { "value": "h4", "label": "H4" },
+        { "value": "h5", "label": "H5" }
+      ],
+      "default": "h3"
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "label": "Heading size",
+      "min": 16,
+      "max": 96,
+      "step": 2,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "checkbox",
+      "id": "heading_uppercase",
+      "label": "Heading uppercase",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Highlight text settings"
+    },
+    {
+      "type": "paragraph",
+      "content": "Wrap text in *italics* to apply animated highlight"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_highlight",
+      "label": "Enable highlight text",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "highlight_type",
+      "label": "Highlight type",
+      "options": [
+        { "value": "text-color", "label": "Text color" },
+        { "value": "script", "label": "Script" },
+        { "value": "background-color", "label": "Background color" },
+        { "value": "underline", "label": "Underline" },
+        { "value": "cutout", "label": "Cutout" },
+        { "value": "hand-drawn-wavy", "label": "Hand-drawn - Wavy" },
+        { "value": "hand-drawn-circle", "label": "Hand-drawn - Circle" },
+        { "value": "hand-drawn-underline", "label": "Hand-drawn - Underline" }
+      ],
+      "default": "cutout"
+    },
+    {
+      "type": "color",
+      "id": "highlight_color",
+      "label": "Highlight color",
+      "default": "#FFD84D"
+    }
+  ],
+  "presets": [
+    { "name": "Heading" }
+  ]
+}
+{% endschema %}
