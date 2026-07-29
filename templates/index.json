@@ -11,10 +11,104 @@
   "sections": {
     "main": {
       "type": "hello-world",
+      "disabled": true,
       "settings": {}
+    },
+    "image_slideshow_EWzdEC": {
+      "type": "image-slideshow",
+      "blocks": {
+        "slide_bNKEGV": {
+          "type": "slide",
+          "settings": {
+            "content_position": "bottom-left",
+            "eyebrow_text": "New collection",
+            "heading": "Crafted for modern living",
+            "heading_size": "large",
+            "description": "<p>Timeless design. Premium materials. Made for everyday luxury.</p>",
+            "text_color": "#FFFFFF",
+            "button1_label": "Shop collection",
+            "button1_link": "",
+            "button2_label": "Learn more",
+            "button2_link": "",
+            "overlay_color": "#000000",
+            "overlay_opacity": 40
+          }
+        }
+      },
+      "block_order": [
+        "slide_bNKEGV"
+      ],
+      "name": "Hero slideshow",
+      "settings": {
+        "height": "large",
+        "autoplay": true,
+        "autoplay_speed": 6,
+        "navigation_style": "arrows",
+        "show_counter": true,
+        "show_progress_bar": true,
+        "show_scroll_indicator": true,
+        "scroll_indicator_text": "Scroll"
+      }
+    },
+    "icons_with_text_Pjpah7": {
+      "type": "icons-with-text",
+      "blocks": {
+        "icon_item_qmy3HM": {
+          "type": "icon_item",
+          "settings": {
+            "icon": "person",
+            "heading": "Intentional design",
+            "text": "<p>Everything we do starts with why</p>"
+          }
+        },
+        "icon_item_JWdpnC": {
+          "type": "icon_item",
+          "settings": {
+            "icon": "heart",
+            "heading": "Made with care",
+            "text": "<p>We believe in building better</p>"
+          }
+        },
+        "icon_item_dU9YyA": {
+          "type": "icon_item",
+          "settings": {
+            "icon": "person",
+            "heading": "A team with a goal",
+            "text": "<p>Real people making great products</p>"
+          }
+        }
+      },
+      "block_order": [
+        "icon_item_qmy3HM",
+        "icon_item_JWdpnC",
+        "icon_item_dU9YyA"
+      ],
+      "name": "Icons with text",
+      "settings": {
+        "heading": "Why shop with us?",
+        "subheading": "Sub Heading",
+        "heading_font": "work_sans_n4",
+        "text_font": "work_sans_n4",
+        "columns_desktop": 3,
+        "columns_mobile": 1,
+        "layout_desktop": "grid",
+        "layout_mobile": "slider",
+        "content_position_desktop": "stacked",
+        "content_position_mobile": "stacked",
+        "icon_size": 40,
+        "enable_animation": true,
+        "background_color": "#00000000",
+        "icon_color": "#1a1a1a",
+        "heading_color": "#1a1a1a",
+        "text_color": "#666666",
+        "padding_top": 70,
+        "padding_bottom": 70
+      }
     }
   },
   "order": [
-    "main"
+    "main",
+    "image_slideshow_EWzdEC",
+    "icons_with_text_Pjpah7"
   ]
 }
