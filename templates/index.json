@@ -14,40 +14,42 @@
       "disabled": true,
       "settings": {}
     },
-    "image_slideshow_EWzdEC": {
-      "type": "image-slideshow",
-      "blocks": {
-        "slide_bNKEGV": {
-          "type": "slide",
-          "settings": {
-            "content_position": "bottom-left",
-            "eyebrow_text": "New collection",
-            "heading": "Crafted for modern living",
-            "heading_size": "large",
-            "description": "<p>Timeless design. Premium materials. Made for everyday luxury.</p>",
-            "text_color": "#FFFFFF",
-            "button1_label": "Shop collection",
-            "button1_link": "",
-            "button2_label": "Learn more",
-            "button2_link": "",
-            "overlay_color": "#000000",
-            "overlay_opacity": 40
-          }
-        }
-      },
-      "block_order": [
-        "slide_bNKEGV"
-      ],
-      "name": "Hero slideshow",
+    "video_EbLEge": {
+      "type": "video",
+      "name": "Video",
       "settings": {
-        "height": "large",
+        "video_url": "",
+        "placeholder_bg_1": "#090a0f",
+        "placeholder_bg_2": "#121526",
+        "placeholder_accent": "#6366f1",
+        "placeholder_accent_2": "#ec4899",
+        "glass_opacity": 15,
+        "glass_border_opacity": 25,
+        "glass_radius": 16,
+        "anim_speed": 1,
+        "play_button_size": 70,
+        "parallax_intensity": 20,
+        "enable_mouse_parallax": true,
+        "enable_pulse": true,
+        "enable_blobs": true,
+        "enable_particles": true,
+        "enable_rings": true,
+        "enable_timeline_cards": true,
         "autoplay": true,
-        "autoplay_speed": 6,
-        "navigation_style": "arrows",
-        "show_counter": true,
-        "show_progress_bar": true,
-        "show_scroll_indicator": true,
-        "scroll_indicator_text": "Scroll"
+        "loop": true,
+        "mute": true,
+        "show_controls": false,
+        "show_sound_toggle": true,
+        "subheading": "",
+        "heading": "",
+        "text": "",
+        "button_label": "",
+        "button_link": "",
+        "content_position": "center",
+        "text_color": "#ffffff",
+        "overlay_color": "#000000",
+        "overlay_opacity": 10,
+        "height_mode": "600"
       }
     },
     "icons_with_text_Pjpah7": {
@@ -97,7 +99,7 @@
         "content_position_mobile": "stacked",
         "icon_size": 40,
         "enable_animation": true,
-        "background_color": "#00000000",
+        "background_color": "rgba(0,0,0,0)",
         "icon_color": "#1a1a1a",
         "heading_color": "#1a1a1a",
         "text_color": "#666666",
@@ -108,7 +110,7 @@
   },
   "order": [
     "main",
-    "image_slideshow_EWzdEC",
+    "video_EbLEge",
     "icons_with_text_Pjpah7"
   ]
 }
