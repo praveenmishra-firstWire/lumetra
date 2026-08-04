@@ -1,0 +1,70 @@
+{% doc %}
+  Single slide: image or video background, a configurable content position
+  (9-point grid), and nested content blocks (subheading, heading, text,
+  button -- add two button blocks for a two-button slide). Underscore-prefixed
+  so it stays out of the block picker for unrelated sections; Slideshow
+  references it explicitly by base filename ("slide").
+{% enddoc %}
+
+{% assign position_parts = block.settings.content_position | split: '_' %}
+{% assign v_align = position_parts[0] %}
+{% assign h_align = position_parts[1] %}
+
+<div class="slide" {{ block.shopify_attributes }}>
+  {% if block.settings.video != blank %}
+    {{ block.settings.video | video_tag: autoplay: true, loop: true, muted: true, controls: false }}
+  {% elsif block.settings.image %}
+    <img
+      src="{{ block.settings.image | image_url: width: 1800 }}"
+      srcset="{{ block.settings.image | image_url: width: 800 }} 800w,
+              {{ block.settings.image | image_url: width: 1800 }} 1800w,
+              {{ block.settings.image | image_url: width: 2600 }} 2600w"
+      sizes="100vw"
+      alt="{{ block.settings.image.alt | escape }}"
+      width="{{ block.settings.image.width }}"
+      height="{{ block.settings.image.height }}"
+      loading="lazy"
+    >
+  {% endif %}
+
+  <div class="slide__scrim"></div>
+
+  <div class="slide__content" data-v="{{ v_align }}" data-h="{{ h_align }}">
+    <div class="slide__content-inner">
+      {% content_for 'blocks' %}
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Slide",
+  "settings": [
+    { "type": "image_picker", "id": "image", "label": "Image" },
+    { "type": "video", "id": "video", "label": "Video (overrides image)" },
+    {
+      "type": "select",
+      "id": "content_position",
+      "label": "Content position",
+      "options": [
+        { "value": "top_left", "label": "Top left" },
+        { "value": "top_center", "label": "Top center" },
+        { "value": "top_right", "label": "Top right" },
+        { "value": "middle_left", "label": "Middle left" },
+        { "value": "middle_center", "label": "Middle center" },
+        { "value": "middle_right", "label": "Middle right" },
+        { "value": "bottom_left", "label": "Bottom left" },
+        { "value": "bottom_center", "label": "Bottom center" },
+        { "value": "bottom_right", "label": "Bottom right" }
+      ],
+      "default": "middle_left"
+    }
+  ],
+  "blocks": [
+    { "type": "subheading" },
+    { "type": "heading" },
+    { "type": "text" },
+    { "type": "button" }
+  ]
+}
+{% endschema %}

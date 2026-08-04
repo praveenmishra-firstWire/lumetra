@@ -1,0 +1,111 @@
+{%- comment -%}
+  Renders the media gallery for the Featured Product section.
+  Expects: product, section
+{%- endcomment -%}
+
+{%- liquid
+  assign media_list = product.media
+  assign show_thumbs = section.settings.show_thumbnails
+  assign shape_class = ''
+  if section.settings.image_shape == 'rounded'
+    assign shape_class = 'featured-product__media--rounded'
+  endif
+-%}
+
+<div class="featured-product__media {{ shape_class }}">
+  {%- if media_list.size > 1 and show_thumbs -%}
+    <div class="featured-product__thumbs" role="listbox" aria-label="{{ product.title | escape }} images">
+      {%- for media in media_list -%}
+        <button
+          type="button"
+          class="fp-thumb{% if forloop.first %} is-active{% endif %}"
+          data-media-id="{{ media.id }}"
+          data-index="{{ forloop.index0 }}"
+          role="option"
+          aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
+          aria-label="View image {{ forloop.index }} of {{ media_list.size }}"
+        >
+          <img
+            src="{{ media.preview_image | image_url: width: 160 }}"
+            alt=""
+            width="80"
+            height="80"
+            loading="lazy"
+            decoding="async"
+          >
+        </button>
+      {%- endfor -%}
+    </div>
+  {%- endif -%}
+
+  <div class="featured-product__main-image">
+    {%- if product.metafields.custom.badge != blank -%}
+      <span class="fp-badge">{{ product.metafields.custom.badge }}</span>
+    {%- endif -%}
+
+    <button type="button" class="fp-wishlist" aria-label="Add {{ product.title | escape }} to wishlist" data-wishlist-toggle>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" width="18" height="18" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z"/></svg>
+    </button>
+
+    {%- if media_list.size > 0 -%}
+      {%- for media in media_list -%}
+        <div
+          class="fp-main-image__slide{% if forloop.first %} is-active{% endif %}"
+          data-media-id="{{ media.id }}"
+          data-index="{{ forloop.index0 }}"
+          {% unless forloop.first %}hidden{% endunless %}
+        >
+          <img
+            class="fp-main-image__el"
+            srcset="
+              {{ media.preview_image | image_url: width: 400 }} 400w,
+              {{ media.preview_image | image_url: width: 800 }} 800w,
+              {{ media.preview_image | image_url: width: 1200 }} 1200w
+            "
+            sizes="(min-width: 750px) 50vw, 100vw"
+            src="{{ media.preview_image | image_url: width: 800 }}"
+            alt="{{ media.alt | default: product.title | escape }}"
+            width="{{ media.preview_image.width }}"
+            height="{{ media.preview_image.height }}"
+            loading="{% if forloop.first %}eager{% else %}lazy{% endif %}"
+            fetchpriority="{% if forloop.first %}high{% else %}auto{% endif %}"
+            decoding="async"
+          >
+        </div>
+      {%- endfor -%}
+    {%- else -%}
+      <div class="fp-main-image__slide is-active">
+        {{ 'product-1' | placeholder_svg_tag: 'fp-main-image__placeholder' }}
+      </div>
+    {%- endif -%}
+
+    {%- if section.settings.enable_zoom and media_list.size > 0 -%}
+      <button type="button" class="fp-zoom" aria-label="Zoom into product image" data-zoom-toggle>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" width="16" height="16" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      </button>
+    {%- endif -%}
+  </div>
+
+  {%- if media_list.size > 1 -%}
+    <div class="featured-product__dots" role="tablist" aria-label="{{ product.title | escape }} images">
+      {%- for media in media_list -%}
+        <button
+          type="button"
+          class="fp-dot{% if forloop.first %} is-active{% endif %}"
+          data-media-id="{{ media.id }}"
+          data-index="{{ forloop.index0 }}"
+          aria-label="View image {{ forloop.index }} of {{ media_list.size }}"
+        ></button>
+      {%- endfor -%}
+    </div>
+  {%- endif -%}
+</div>
+
+{%- if section.settings.enable_zoom and media_list.size > 0 -%}
+  <div class="fp-zoom-modal" data-zoom-modal hidden>
+    <button type="button" class="fp-zoom-modal__close" aria-label="Close zoomed image" data-zoom-close>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="20" height="20" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+    </button>
+    <img class="fp-zoom-modal__img" data-zoom-modal-img alt="{{ product.title | escape }}">
+  </div>
+{%- endif -%}

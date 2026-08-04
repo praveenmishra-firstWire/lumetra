@@ -1,0 +1,67 @@
+{%- comment -%}
+  Renders the title/rating/price/description column for the Featured
+  Product section, followed by the interactive form.
+  Expects: product, section
+{%- endcomment -%}
+
+{%- liquid
+  assign current_variant = product.selected_or_first_available_variant
+  assign rating_value = product.metafields.reviews.rating.value
+  assign rating_count = product.metafields.reviews.rating_count.value
+-%}
+
+<div class="featured-product__info">
+  {%- if section.settings.show_vendor and product.vendor != blank or section.settings.show_type and product.type != blank -%}
+    <p class="fp-vendor">
+      {%- if section.settings.show_vendor and product.vendor != blank -%}{{ product.vendor }}{%- endif -%}
+      {%- if section.settings.show_vendor and section.settings.show_type and product.vendor != blank and product.type != blank -%} · {%- endif -%}
+      {%- if section.settings.show_type and product.type != blank -%}{{ product.type }}{%- endif -%}
+    </p>
+  {%- endif -%}
+
+  <h2 class="fp-title">{{ product.title }}</h2>
+
+  {%- if section.settings.show_rating and rating_value != blank -%}
+    <div class="fp-rating">
+      <span class="fp-rating__stars" aria-hidden="true">
+        {%- assign rounded_rating = rating_value | round -%}
+        {%- for i in (1..5) -%}
+          {%- if i <= rounded_rating -%}★{%- else -%}☆{%- endif -%}
+        {%- endfor -%}
+      </span>
+      <span class="visually-hidden">{{ rating_value }} out of 5 stars</span>
+      {%- if rating_count != blank -%}
+        <span class="fp-rating__count">({{ rating_count }} reviews)</span>
+      {%- endif -%}
+    </div>
+  {%- endif -%}
+
+  {%- if section.settings.show_price -%}
+    <div class="fp-price" id="Price-{{ section.id }}">
+      <span class="fp-price__current" data-price>{{ current_variant.price | money }}</span>
+      {%- if section.settings.show_compare_price and current_variant.compare_at_price > current_variant.price -%}
+        <span class="fp-price__compare" data-compare-price>{{ current_variant.compare_at_price | money }}</span>
+      {%- else -%}
+        <span class="fp-price__compare" data-compare-price hidden></span>
+      {%- endif -%}
+      {%- if section.settings.show_savings_badge and current_variant.compare_at_price > current_variant.price -%}
+        {%- assign savings = current_variant.compare_at_price | minus: current_variant.price -%}
+        <span class="fp-price__savings" data-savings-badge>You save {{ savings | money }}</span>
+      {%- else -%}
+        <span class="fp-price__savings" data-savings-badge hidden></span>
+      {%- endif -%}
+    </div>
+  {%- endif -%}
+
+  {%- if section.settings.show_short_description -%}
+    <div class="fp-description">
+      {%- if section.settings.custom_description != blank -%}
+        {{ section.settings.custom_description }}
+      {%- else -%}
+        <p>{{ product.description | strip_html | truncatewords: 40 }}</p>
+      {%- endif -%}
+    </div>
+  {%- endif -%}
+
+  {%- render 'featured-product-form', product: product, section: section, current_variant: current_variant -%}
+</div>

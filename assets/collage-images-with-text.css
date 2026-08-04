@@ -1,0 +1,347 @@
+.civt-section {
+  padding-top: var(--civt-padding-top, 36px);
+  padding-bottom: var(--civt-padding-bottom, 36px);
+  background: var(--civt-bg);
+  color: var(--civt-fg);
+  overflow: hidden;
+}
+
+.civt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.civt--full-width {
+  max-width: 100%;
+  padding: 0 3rem;
+}
+
+@media screen and (min-width: 990px) {
+  .civt {
+    flex-direction: row;
+    gap: 2rem;
+  }
+
+  .civt--reverse {
+    flex-direction: row-reverse;
+  }
+
+  .civt__images-col,
+  .civt__content-col {
+    flex: 1 1 50%;
+    max-width: 50%;
+  }
+}
+
+/* ---- Content ---- */
+.civt__content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1.75rem;
+  max-width: 46rem;
+}
+
+.civt__content.text-center {
+  align-items: center;
+  text-align: center;
+  margin: 0 auto;
+}
+
+.civt__content.text-right {
+  align-items: flex-end;
+  text-align: right;
+  margin-inline-start: auto;
+}
+
+@media screen and (min-width: 990px) {
+  .civt__content--top {
+    align-self: flex-start;
+  }
+  .civt__content--middle {
+    align-self: center;
+  }
+  .civt__content--bottom {
+    align-self: flex-end;
+  }
+}
+
+.civt__label {
+  margin: 0;
+  letter-spacing: 0.02em;
+  color: rgba(var(--civt-fg-rgb), 0.75);
+}
+
+.civt__highlight {
+  background: rgba(var(--civt-highlight, 255, 181, 3), 0.55);
+  color: var(--civt-fg);
+  padding: 0.05em 0.4em;
+  border-radius: 0.2em;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+.civt__heading {
+  margin: 0;
+  line-height: 1.05;
+  color: var(--civt-fg);
+}
+
+.civt__text {
+  line-height: 1.6;
+  max-width: 42ch;
+  color: rgba(var(--civt-fg-rgb), 0.85);
+}
+
+.civt__text p {
+  margin: 0 0 1rem;
+}
+
+.civt__text p:last-child {
+  margin-bottom: 0;
+}
+
+.civt__buttons {
+  margin-top: 0.5rem;
+}
+
+/* ---- Premium button (integrated from image-overlay section) ---- */
+.civt__button {
+  position: relative;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  text-decoration: none;
+  padding: 18px 34px;
+  background: var(--button-bg);
+  color: var(--button-color);
+  border: 1px solid var(--button-bg);
+  border-radius: var(--border-radius);
+  text-transform: uppercase;
+  letter-spacing: .18em;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background .35s ease,
+    color .35s ease,
+    transform .35s ease,
+    box-shadow .35s ease,
+    opacity .8s ease;
+}
+
+.civt__button svg,
+.civt__button span {
+  position: relative;
+  z-index: 2;
+}
+
+.civt__button svg {
+  transition: transform .35s ease;
+}
+
+.civt__button:hover {
+  background: var(--button-hover-bg);
+  color: var(--button-hover-color);
+  border-color: var(--button-hover-bg);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, .12);
+}
+
+.civt__button:hover svg {
+  transform: translateX(5px);
+}
+
+/* Diagonal shine sweep on hover */
+.civt__button::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, .18);
+  transform: translateX(-100%) skewX(-18deg);
+  transition: transform .7s ease;
+}
+
+.civt__button:hover::before {
+  transform: translateX(200%) skewX(-18deg);
+}
+
+/* Outline / secondary variant */
+.civt__button--secondary {
+  background: transparent;
+  color: var(--button-bg);
+}
+
+.civt__button--secondary:hover {
+  background: var(--button-hover-bg);
+  color: var(--button-hover-color);
+}
+
+/* Keyboard accessibility */
+.civt__button:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 4px;
+}
+
+/* Scroll-in entrance animation (paired with .is-visible on [data-civt-content]) */
+.civt__button {
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+[data-civt-content].is-visible .civt__button {
+  opacity: 1;
+  transform: none;
+  transition-delay: .3s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .civt__button {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+}
+
+@media screen and (max-width: 749px) {
+  .civt__button {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* ---- Collage ---- */
+.civt__images-col {
+  width: 100%;
+}
+
+.civt-collage-frame {
+  position: relative;
+  padding: 20% 10% 12% 10%;
+}
+
+@media screen and (max-width: 749px) {
+  .civt-collage-frame {
+    padding: 16% 9% 10% 9%;
+  }
+}
+
+.civt-collage {
+  position: relative;
+  width: 60%;
+  max-width: 28rem;
+  margin: 0 auto;
+}
+
+.civt-collage__item {
+  overflow: hidden;
+  position: absolute;
+  border-radius: 0.8rem;
+  box-shadow: 0 0.2rem 0.6rem rgba(var(--civt-fg-rgb), 0.12);
+  background: rgba(var(--civt-fg-rgb), 0.06);
+}
+
+/* item 1: hero tile, normal flow, defines frame height */
+.civt-collage__item--1 {
+  position: relative;
+  z-index: 2;
+  box-shadow: 0 0 4rem rgba(var(--civt-fg-rgb), 0.18);
+}
+
+/* item 2: top-right */
+.civt-collage__item--2 {
+  z-index: 1;
+  width: 70%;
+  top: -18%;
+  right: -44%;
+}
+
+/* item 3: top-left */
+.civt-collage__item--3 {
+  z-index: 1;
+  width: 70%;
+  top: -32%;
+  left: -55%;
+}
+
+/* item 4: bottom-left */
+.civt-collage__item--4 {
+  z-index: 1;
+  width: 54%;
+  bottom: -10%;
+  left: -32%;
+}
+
+.civt-collage__img,
+.civt-collage__placeholder {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 0.8rem;
+}
+
+.civt-collage__placeholder {
+  fill: rgba(var(--civt-fg-rgb), 0.2);
+}
+
+@media screen and (max-width: 480px) {
+  .civt-collage__item--2 {
+    width: 62%;
+  }
+  .civt-collage__item--4 {
+    width: 48%;
+  }
+}
+
+/* ---- Reveal animation ---- */
+/* Images are visible/normal by default (no JS = no animation, but layout and
+   visibility are unaffected). The hidden pre-animation state is only applied
+   once the script confirms it's running, via .civt-collage--animate-ready. */
+.civt-collage__item {
+  transition: transform 0.9s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.7s ease;
+  will-change: transform, opacity;
+}
+
+.civt-collage--animate-ready .civt-collage__item--1 {
+  transform: scale(0.2);
+  opacity: 0;
+  transition-delay: 0s;
+}
+
+.civt-collage--animate-ready .civt-collage__item--2 {
+  transform: translate(-35%, -70%) scale(0.4);
+  opacity: 0;
+  transition-delay: 0.15s;
+}
+
+.civt-collage--animate-ready .civt-collage__item--3 {
+  transform: translate(35%, -70%) scale(0.4);
+  opacity: 0;
+  transition-delay: 0.3s;
+}
+
+.civt-collage--animate-ready .civt-collage__item--4 {
+  transform: translate(35%, 70%) scale(0.4);
+  opacity: 0;
+  transition-delay: 0.45s;
+}
+
+.civt-collage--animate-ready.is-revealed .civt-collage__item {
+  transform: translate(0, 0) scale(1);
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .civt-collage__item {
+    transition: none !important;
+    transform: none !important;
+    opacity: 1 !important;
+  }
+}

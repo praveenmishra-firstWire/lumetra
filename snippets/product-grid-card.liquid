@@ -1,0 +1,209 @@
+{%- comment -%}
+  Renders a single product card.
+  Expects: product, section
+{%- endcomment -%}
+
+{%- liquid
+  assign variant = product.selected_or_first_available_variant
+  assign has_compare = false
+  if variant.compare_at_price > variant.price
+    assign has_compare = true
+  endif
+
+  assign is_new = false
+  if section.settings.show_new_badge
+    assign created_seconds = product.created_at | date: '%s'
+    assign now_seconds = 'now' | date: '%s'
+    assign age_days = now_seconds | minus: created_seconds | divided_by: 86400
+    if age_days <= section.settings.new_badge_days
+      assign is_new = true
+    endif
+  endif
+
+  assign is_bestseller = false
+  if section.settings.show_bestseller_badge and product.tags contains section.settings.bestseller_tag
+    assign is_bestseller = true
+  endif
+
+  assign has_custom_badge_1 = false
+  if section.settings.custom_badge_1_enable and section.settings.custom_badge_1_tag != blank and product.tags contains section.settings.custom_badge_1_tag
+    assign has_custom_badge_1 = true
+  endif
+
+  assign has_custom_badge_2 = false
+  if section.settings.custom_badge_2_enable and section.settings.custom_badge_2_tag != blank and product.tags contains section.settings.custom_badge_2_tag
+    assign has_custom_badge_2 = true
+  endif
+
+  assign rating_value = product.metafields.reviews.rating.value
+  assign rating_count = product.metafields.reviews.rating_count.value
+
+  assign color_option_index = -1
+  for option in product.options_with_values
+    assign downcased_name = option.name | downcase
+    if downcased_name == 'color' or downcased_name == 'colour'
+      assign color_option_index = forloop.index0
+    endif
+  endfor
+-%}
+
+<div class="product-grid__card" data-product-card>
+  <div class="product-grid__media">
+    <a href="{{ product.url }}" class="product-grid__media-link" aria-label="{{ product.title | escape }}">
+      {%- if product.featured_image != blank -%}
+        <img
+          class="product-grid__image product-grid__image--primary"
+          srcset="
+            {{ product.featured_image | image_url: width: 300 }} 300w,
+            {{ product.featured_image | image_url: width: 500 }} 500w,
+            {{ product.featured_image | image_url: width: 700 }} 700w
+          "
+          sizes="(min-width: 750px) 25vw, 50vw"
+          src="{{ product.featured_image | image_url: width: 500 }}"
+          alt="{{ product.featured_image.alt | escape }}"
+          width="{{ product.featured_image.width }}"
+          height="{{ product.featured_image.height }}"
+          loading="{% if section.settings.lazy_load_images %}lazy{% else %}eager{% endif %}"
+          decoding="async"
+          data-default-src="{{ product.featured_image | image_url: width: 500 }}"
+        >
+      {%- else -%}
+        <div class="product-grid__placeholder">
+          {{ 'product-1' | placeholder_svg_tag: 'product-grid__placeholder-svg' }}
+        </div>
+      {%- endif -%}
+      {%- if product.images.size > 1 -%}
+        <img
+          class="product-grid__image product-grid__image--hover"
+          src="{{ product.images[1] | image_url: width: 500 }}"
+          alt=""
+          width="{{ product.images[1].width }}"
+          height="{{ product.images[1].height }}"
+          loading="lazy"
+          decoding="async"
+          aria-hidden="true"
+        >
+      {%- endif -%}
+    </a>
+
+    <div class="product-grid__badges">
+      {%- if section.settings.show_sale_badge and has_compare -%}
+        <span class="product-grid__badge product-grid__badge--sale">{{ section.settings.sale_badge_text }}</span>
+      {%- endif -%}
+      {%- if is_new -%}
+        <span class="product-grid__badge product-grid__badge--new">{{ section.settings.new_badge_text }}</span>
+      {%- endif -%}
+      {%- if is_bestseller -%}
+        <span class="product-grid__badge product-grid__badge--bestseller">{{ section.settings.bestseller_badge_text }}</span>
+      {%- endif -%}
+      {%- if has_custom_badge_1 -%}
+        <span class="product-grid__badge product-grid__badge--custom-1">{{ section.settings.custom_badge_1_text }}</span>
+      {%- endif -%}
+      {%- if has_custom_badge_2 -%}
+        <span class="product-grid__badge product-grid__badge--custom-2">{{ section.settings.custom_badge_2_text }}</span>
+      {%- endif -%}
+    </div>
+
+    {%- if section.settings.show_wishlist_icon -%}
+      <button type="button" class="product-grid__wishlist" data-wishlist-toggle data-product-id="{{ product.id }}" aria-label="Add {{ product.title | escape }} to wishlist" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" width="16" height="16" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z"/></svg>
+      </button>
+    {%- endif -%}
+
+    {%- if section.settings.show_quick_view -%}
+      <button type="button" class="product-grid__quick-view" data-quick-view-toggle data-product-url="{{ product.url }}">
+        {{ section.settings.quick_view_label | default: 'Quick view' }}
+      </button>
+    {%- endif -%}
+
+    {%- if section.settings.enable_swatch and color_option_index > -1 -%}
+      <div class="product-grid__swatches">
+        {%- for value in product.options_with_values[color_option_index].values -%}
+          {%- for v in product.variants -%}
+            {%- if v.options[color_option_index] == value -%}
+              <button
+                type="button"
+                class="product-grid__swatch{% if forloop.first %} is-active{% endif %}"
+                style="--swatch-color: {{ value | handle }};"
+                data-swatch
+                data-image="{{ v.featured_image | image_url: width: 500 }}"
+                aria-label="{{ value | escape }}"
+              ></button>
+              {%- break -%}
+            {%- endif -%}
+          {%- endfor -%}
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
+  </div>
+
+  <div class="product-grid__info">
+    {%- if section.settings.show_vendor and product.vendor != blank -%}
+      <p class="product-grid__vendor">{{ product.vendor }}</p>
+    {%- endif -%}
+
+    {%- if section.settings.show_title -%}
+      <h3 class="product-grid__title">
+        <a href="{{ product.url }}">
+          {%- if section.settings.title_length_limit > 0 -%}
+            {{ product.title | truncatewords: section.settings.title_length_limit }}
+          {%- else -%}
+            {{ product.title }}
+          {%- endif -%}
+        </a>
+      </h3>
+    {%- endif -%}
+
+    {%- if section.settings.show_rating and rating_value != blank -%}
+      <div class="product-grid__rating">
+        <span class="product-grid__rating-stars" aria-hidden="true">
+          {%- assign rounded_rating = rating_value | round -%}
+          {%- for i in (1..5) -%}
+            {%- if i <= rounded_rating -%}★{%- else -%}☆{%- endif -%}
+          {%- endfor -%}
+        </span>
+        {%- if section.settings.show_review_count and rating_count != blank -%}
+          <span class="product-grid__rating-count">({{ rating_count }})</span>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+
+    {%- if section.settings.show_price -%}
+      <div class="product-grid__price">
+        <span class="product-grid__price-current{% if has_compare %} product-grid__price-current--sale{% endif %}">
+          {{ variant.price | money }}
+        </span>
+        {%- if section.settings.show_compare_price and has_compare -%}
+          <span class="product-grid__price-compare">{{ variant.compare_at_price | money }}</span>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+
+    {%- if section.settings.enable_quantity_selector -%}
+      <div class="product-grid__quantity">
+        <button type="button" aria-label="Decrease quantity" data-quantity-decrease>−</button>
+        <input type="number" value="1" min="1" aria-label="Quantity" data-quantity-input>
+        <button type="button" aria-label="Increase quantity" data-quantity-increase>+</button>
+      </div>
+    {%- endif -%}
+
+    {%- if section.settings.show_add_to_cart -%}
+      <product-grid-form data-product-id="{{ variant.id }}">
+        <button
+          type="button"
+          class="product-grid__add-to-cart product-grid__add-to-cart--{{ section.settings.add_to_cart_style }}"
+          data-add-to-cart-button
+          data-variant-id="{{ variant.id }}"
+          {% unless variant.available %}disabled{% endunless %}
+        >
+          {%- if section.settings.add_to_cart_style == 'icon' -%}
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="16" height="16" aria-hidden="true"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6"/></svg>
+            <span class="visually-hidden">{% if variant.available %}Add to cart{% else %}Sold out{% endif %}</span>
+          {%- else -%}
+            <span data-add-to-cart-label>{% if variant.available %}Add to cart{% else %}Sold out{% endif %}</span>
+          {%- endif -%}
+        </button>
+      </product-grid-form>
+    {%- endif -%}
+  </div>
+</div>

@@ -1,0 +1,56 @@
+{%- comment -%}
+  Renders one responsive banner image, with an optional separate mobile
+  image swapped in under 750px via <picture><source>.
+  Expects: image, mobile_image, image_position, is_priority, extra_class
+{%- endcomment -%}
+
+{%- liquid
+  assign loading = 'lazy'
+  assign fetchpriority = 'auto'
+  if is_priority
+    assign loading = 'eager'
+    assign fetchpriority = 'high'
+  endif
+-%}
+
+<div class="image-banner__media{% if extra_class %} {{ extra_class }}{% endif %}">
+  {%- if image != blank -%}
+    <picture>
+      {%- if mobile_image != blank -%}
+        <source
+          media="(max-width: 749px)"
+          srcset="
+            {{ mobile_image | image_url: width: 375 }} 375w,
+            {{ mobile_image | image_url: width: 750 }} 750w,
+            {{ mobile_image | image_url: width: 1100 }} 1100w
+          "
+          sizes="100vw"
+        >
+      {%- endif -%}
+      <img
+        class="image-banner__image"
+        srcset="
+          {{ image | image_url: width: 400 }} 400w,
+          {{ image | image_url: width: 800 }} 800w,
+          {{ image | image_url: width: 1200 }} 1200w,
+          {{ image | image_url: width: 1600 }} 1600w,
+          {{ image | image_url: width: 2000 }} 2000w,
+          {{ image | image_url: width: 2560 }} 2560w
+        "
+        sizes="100vw"
+        src="{{ image | image_url: width: 1600 }}"
+        alt="{{ image.alt | escape }}"
+        width="{{ image.width }}"
+        height="{{ image.height }}"
+        loading="{{ loading }}"
+        fetchpriority="{{ fetchpriority }}"
+        decoding="async"
+        style="object-position: {{ image_position | default: image.presentation.focal_point | default: '50% 50%' }};"
+      >
+    </picture>
+  {%- else -%}
+    <div class="image-banner__placeholder">
+      {{ 'lifestyle-1' | placeholder_svg_tag: 'image-banner__placeholder-svg' }}
+    </div>
+  {%- endif -%}
+</div>

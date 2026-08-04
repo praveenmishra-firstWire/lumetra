@@ -1,0 +1,202 @@
+.cbs {
+  display: block;
+  background: var(--cbs-bg);
+  padding-block: var(--cbs-padding-top) var(--cbs-padding-bottom);
+}
+
+/* Breaks the section out of the theme's page-width/container wrapper so
+   its background spans the full viewport edge-to-edge, regardless of that
+   wrapper's own max-width or side padding. Toggled via the "Full width
+   section" setting (see the data-full-width attribute on <section>). */
+.cbs[data-full-width="true"] {
+  width: 100vw;
+  max-width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+}
+
+.cbs,
+.cbs * {
+  box-sizing: border-box;
+}
+
+.cbs .cbs__inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding-inline: 24px;
+}
+
+.cbs .cbs__heading {
+  font-size: clamp(1.4rem, 2.6vw, 1.9rem);
+  font-weight: 700;
+  color: var(--cbs-heading-color);
+  margin: 0 0 20px;
+}
+
+/* ---- Grid ---- */
+.cbs .cbs__grid {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  grid-template-areas:
+    "large tr1 tr2"
+    "large wide wide";
+  gap: var(--cbs-gap);
+  height: var(--cbs-grid-height);
+}
+
+.cbs .cbs__tile--large {
+  grid-area: large;
+}
+
+.cbs .cbs__tile--1 {
+  grid-area: tr1;
+}
+
+.cbs .cbs__tile--2 {
+  grid-area: tr2;
+}
+
+.cbs .cbs__tile--3 {
+  grid-area: wide;
+}
+
+/* ---- Tile ---- */
+.cbs .cbs__tile {
+  position: relative;
+  border-radius: var(--cbs-radius);
+  overflow: hidden;
+  background: #1a1a1a;
+}
+
+.cbs .cbs__tile-link {
+  display: block;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  text-decoration: none;
+}
+
+.cbs .cbs__media {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.cbs .cbs__placeholder,
+.cbs .cbs__placeholder-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: #2a2a2a;
+}
+
+/* Zoom-on-hover, toggled via the "Zoom media on hover" setting (see the
+   data-hover-zoom attribute on <section>). */
+.cbs[data-hover-zoom="true"] .cbs__tile-link:hover .cbs__media {
+  transform: scale(1.05);
+}
+
+.cbs .cbs__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, var(--cbs-overlay-color) 0%, transparent 55%);
+  opacity: var(--cbs-overlay-opacity);
+  pointer-events: none;
+}
+
+.cbs .cbs__content {
+  position: absolute;
+  left: 20px;
+  bottom: 18px;
+  right: 20px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cbs .cbs__title {
+  font-size: var(--cbs-title-size);
+  font-weight: var(--cbs-title-weight);
+  color: var(--cbs-title-color);
+  line-height: 1.3;
+  letter-spacing: 0.01em;
+}
+
+.cbs .cbs__badge-dot {
+  flex: 0 0 auto;
+  width: var(--cbs-badge-size);
+  height: var(--cbs-badge-size);
+  border-radius: 50%;
+  background: var(--cbs-badge-color);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.25);
+}
+
+/* ---- Tablet: large tile full width top, two small tiles side by side,
+   wide tile full width bottom ---- */
+@media screen and (max-width: 989px) {
+  .cbs .cbs__grid {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto auto;
+    grid-template-areas:
+      "large large"
+      "tr1 tr2"
+      "wide wide";
+    height: auto;
+  }
+
+  .cbs .cbs__tile--large {
+    aspect-ratio: 16 / 9;
+  }
+
+  .cbs .cbs__tile--1,
+  .cbs .cbs__tile--2 {
+    aspect-ratio: 1 / 1;
+  }
+
+  .cbs .cbs__tile--3 {
+    aspect-ratio: 21 / 9;
+  }
+}
+
+/* ---- Mobile: fully stacked single column ---- */
+@media screen and (max-width: 749px) {
+  .cbs .cbs__grid {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "large"
+      "tr1"
+      "tr2"
+      "wide";
+    gap: var(--cbs-mobile-gap);
+  }
+
+  .cbs .cbs__tile--large {
+    aspect-ratio: var(--cbs-mobile-aspect-ratio);
+  }
+
+  .cbs .cbs__tile--1,
+  .cbs .cbs__tile--2,
+  .cbs .cbs__tile--3 {
+    aspect-ratio: var(--cbs-mobile-aspect-ratio);
+  }
+
+  .cbs .cbs__content {
+    left: 16px;
+    right: 16px;
+    bottom: 14px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cbs .cbs__media {
+    transition: none !important;
+  }
+}

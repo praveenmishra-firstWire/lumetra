@@ -1,0 +1,392 @@
+{{ 'banner-with-text.css' | asset_url | stylesheet_tag }}
+
+{%- style -%}
+  {{ section.settings.heading_font | font_face: font_display: 'swap' }}
+  {{ section.settings.heading_font | font_modify: 'weight', 'bold' | font_face: font_display: 'swap' }}
+  {{ section.settings.subheading_font | font_face: font_display: 'swap' }}
+
+  #shopify-section-{{ section.id }} {
+    --heading-font-family: {{ section.settings.heading_font.family }}, {{ section.settings.heading_font.fallback_families }};
+    --heading-font-style: {{ section.settings.heading_font.style }};
+    --heading-font-weight: {{ section.settings.heading_font.weight }};
+    --subheading-font-family: {{ section.settings.subheading_font.family }}, {{ section.settings.subheading_font.fallback_families }};
+  }
+
+  #BannerWithText-{{ section.id }} {
+    --heading-color: {{ section.settings.heading_color }};
+    --text-color: {{ section.settings.text_color }};
+    --content-bg: {{ section.settings.content_background }};
+    --content-max-width: {{ section.settings.content_max_width }}px;
+    --button-bg: {{ section.settings.button_color }};
+    --button-text-color: {{ section.settings.button_text_color }};
+    --button-radius: {{ section.settings.button_corner_radius }}px;
+    --overlay-opacity: {{ section.settings.overlay_opacity | divided_by: 100.0 }};
+    --padding-top: {{ section.settings.padding_top }}px;
+    --padding-bottom: {{ section.settings.padding_bottom }}px;
+    --content-padding-top-desktop: {{ section.settings.content_padding_top_desktop }}px;
+    --content-padding-right-desktop: {{ section.settings.content_padding_right_desktop }}px;
+    --content-padding-bottom-desktop: {{ section.settings.content_padding_bottom_desktop }}px;
+    --content-padding-left-desktop: {{ section.settings.content_padding_left_desktop }}px;
+    --content-padding-top-mobile: {{ section.settings.content_padding_top_mobile }}px;
+    --content-padding-right-mobile: {{ section.settings.content_padding_right_mobile }}px;
+    --content-padding-bottom-mobile: {{ section.settings.content_padding_bottom_mobile }}px;
+    --content-padding-left-mobile: {{ section.settings.content_padding_left_mobile }}px;
+  }
+{%- endstyle -%}
+
+<div
+  id="BannerWithText-{{ section.id }}"
+  class="banner-with-text{% if section.settings.button_style == 'outline' %} banner-with-text--outline-buttons{% endif %}"
+  data-image-position="{{ section.settings.image_position }}"
+  data-content-width="{{ section.settings.content_width }}"
+>
+  <div class="banner-with-text__image">
+    {%- if section.settings.image != blank -%}
+      <img
+        class="banner-with-text__image-el"
+        srcset="
+          {{ section.settings.image | image_url: width: 400 }} 400w,
+          {{ section.settings.image | image_url: width: 800 }} 800w,
+          {{ section.settings.image | image_url: width: 1200 }} 1200w,
+          {{ section.settings.image | image_url: width: 1600 }} 1600w
+        "
+        sizes="(min-width: 750px) 50vw, 100vw"
+        src="{{ section.settings.image | image_url: width: 1200 }}"
+        alt="{{ section.settings.image.alt | escape }}"
+        width="{{ section.settings.image.width }}"
+        height="{{ section.settings.image.height }}"
+        loading="lazy"
+        decoding="async"
+        style="object-position: {{ section.settings.image.presentation.focal_point | default: '50% 50%' }};"
+      >
+    {%- else -%}
+      <div class="banner-with-text__image-placeholder">
+        {{ 'lifestyle-1' | placeholder_svg_tag: 'banner-with-text__placeholder-svg' }}
+      </div>
+    {%- endif -%}
+    {%- if section.settings.content_width == 'full_width' and section.settings.show_overlay -%}
+      <div class="banner-with-text__overlay"></div>
+    {%- endif -%}
+  </div>
+
+  <div
+    class="banner-with-text__content"
+    data-position="{{ section.settings.content_position_desktop }}"
+    data-valign="{{ section.settings.vertical_alignment_desktop }}"
+    data-mobile-position="{{ section.settings.content_position_mobile }}"
+  >
+    {%- content_for 'blocks' -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Banner with text",
+  "class": "shopify-section--banner-with-text",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Image"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Background image"
+    },
+    {
+      "type": "select",
+      "id": "image_position",
+      "label": "Image position on large screens",
+      "info": "The image always appears above the content on small screens.",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "right"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_overlay",
+      "label": "Show image overlay",
+      "default": true,
+      "visible_if": "{{ section.settings.content_width == 'full_width' }}"
+    },
+    {
+      "type": "color",
+      "id": "overlay_color",
+      "label": "Overlay color",
+      "default": "#000000",
+      "visible_if": "{{ section.settings.content_width == 'full_width' and section.settings.show_overlay }}"
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "label": "Overlay opacity",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 35,
+      "visible_if": "{{ section.settings.content_width == 'full_width' and section.settings.show_overlay }}"
+    },
+    {
+      "type": "header",
+      "content": "Layout and alignment"
+    },
+    {
+      "type": "select",
+      "id": "content_width",
+      "label": "Content width",
+      "info": "Boxed keeps text and image side by side. Full width lets text overlay the image.",
+      "options": [
+        { "value": "boxed", "label": "Boxed" },
+        { "value": "full_width", "label": "Full width" }
+      ],
+      "default": "boxed"
+    },
+    {
+      "type": "select",
+      "id": "content_position_desktop",
+      "label": "Content position on large screens",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "select",
+      "id": "vertical_alignment_desktop",
+      "label": "Vertical alignment on large screens",
+      "options": [
+        { "value": "top", "label": "Top" },
+        { "value": "middle", "label": "Middle" },
+        { "value": "bottom", "label": "Bottom" }
+      ],
+      "default": "middle"
+    },
+    {
+      "type": "select",
+      "id": "content_position_mobile",
+      "label": "Content position on small screens",
+      "info": "Only applies when content width is set to full width. Otherwise content always stacks below the image.",
+      "options": [
+        { "value": "top", "label": "Top of image" },
+        { "value": "center", "label": "Center of image" },
+        { "value": "bottom", "label": "Below image" }
+      ],
+      "default": "bottom",
+      "visible_if": "{{ section.settings.content_width == 'full_width' }}"
+    },
+    {
+      "type": "range",
+      "id": "content_max_width",
+      "label": "Content max width",
+      "min": 320,
+      "max": 720,
+      "step": 20,
+      "unit": "px",
+      "default": 480
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "font_picker",
+      "id": "heading_font",
+      "label": "Heading font",
+      "default": "poppins_n7"
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Heading color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "font_picker",
+      "id": "subheading_font",
+      "label": "Subheading font",
+      "default": "assistant_n6"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#e5e5e5"
+    },
+    {
+      "type": "color",
+      "id": "content_background",
+      "label": "Content background",
+      "info": "Used when content width is set to boxed.",
+      "default": "#16332a"
+    },
+    {
+      "type": "header",
+      "content": "Button settings"
+    },
+    {
+      "type": "select",
+      "id": "button_style",
+      "label": "Button style",
+      "options": [
+        { "value": "filled", "label": "Filled" },
+        { "value": "outline", "label": "Outline" }
+      ],
+      "default": "filled"
+    },
+    {
+      "type": "color",
+      "id": "button_color",
+      "label": "Button background",
+      "default": "#c9dcc0"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Button text color",
+      "default": "#16332a"
+    },
+    {
+      "type": "range",
+      "id": "button_corner_radius",
+      "label": "Button corner radius",
+      "min": 0,
+      "max": 30,
+      "step": 1,
+      "unit": "px",
+      "default": 6
+    },
+    {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "content_padding_top_desktop",
+      "label": "Content padding top \u2014 desktop",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 64
+    },
+    {
+      "type": "range",
+      "id": "content_padding_right_desktop",
+      "label": "Content padding right \u2014 desktop",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 64
+    },
+    {
+      "type": "range",
+      "id": "content_padding_bottom_desktop",
+      "label": "Content padding bottom \u2014 desktop",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 64
+    },
+    {
+      "type": "range",
+      "id": "content_padding_left_desktop",
+      "label": "Content padding left \u2014 desktop",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 64
+    },
+    {
+      "type": "range",
+      "id": "content_padding_top_mobile",
+      "label": "Content padding top \u2014 mobile",
+      "min": 0,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "content_padding_right_mobile",
+      "label": "Content padding right \u2014 mobile",
+      "min": 0,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "content_padding_bottom_mobile",
+      "label": "Content padding bottom \u2014 mobile",
+      "min": 0,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "content_padding_left_mobile",
+      "label": "Content padding left \u2014 mobile",
+      "min": 0,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "default": 24
+    }
+  ],
+  "blocks": [
+    { "type": "subheading" },
+    { "type": "heading" },
+    { "type": "text" },
+    { "type": "button" }
+  ],
+  "max_blocks": 8,
+  "presets": [
+    {
+      "name": "Banner with text",
+      "settings": {
+        "image_position": "right",
+        "content_position_desktop": "left",
+        "content_width": "boxed"
+      },
+      "blocks": [
+        { "type": "subheading", "settings": { "text": "Bring nature home" } },
+        { "type": "heading", "settings": { "text": "Beautiful plants for a better life" } },
+        { "type": "text", "settings": { "text": "<p>Transform your space into a green oasis with our handpicked indoor plants that purify the air and lift your mood.</p>" } },
+        { "type": "button", "settings": { "label": "Shop collection" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

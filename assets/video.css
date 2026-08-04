@@ -1,0 +1,269 @@
+.banner-video {
+  position: relative;
+  width: 100%;
+  height: var(--section-height, 600px);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  background: #000;
+}
+
+.banner-video--screen {
+  height: 100vh;
+}
+
+.banner-video--adapt {
+  height: auto;
+  display: block;
+}
+
+.banner-video__media {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.banner-video--adapt .banner-video__media {
+  position: relative;
+  inset: auto;
+  height: auto;
+}
+
+.banner-video__el,
+.banner-video__el--image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.banner-video--adapt .banner-video__el,
+.banner-video--adapt .banner-video__el--image {
+  position: static;
+  width: 100%;
+  height: auto;
+  object-fit: unset;
+  display: block;
+}
+
+.banner-video--adapt .banner-video__content {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+}
+
+.banner-video__placeholder {
+  width: 100%;
+  height: 100%;
+  background: #ebebeb;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ── Shape container ── */
+.placeholder-shapes {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* ── Individual shapes ── */
+.placeholder-shape {
+  position: absolute;
+  fill: none;
+  stroke: #c8c8c8;
+  stroke-width: 1.5;
+  opacity: 0.7;
+  will-change: transform;
+}
+
+/* ── Shape sizes & positions ── */
+.shape--1  { width: 140px; top: 5%;   left: 4%;   animation: floatA 8s ease-in-out infinite; }
+.shape--2  { width: 100px; top: 55%;  left: 2%;   animation: floatB 9s ease-in-out infinite 0.5s; }
+.shape--3  { width: 60px;  top: 10%;  left: 25%;  animation: floatC 7s ease-in-out infinite 1s; }
+.shape--4  { width: 90px;  top: 60%;  left: 22%;  animation: floatA 10s ease-in-out infinite 1.5s; }
+.shape--5  { width: 170px; top: 2%;   left: 42%;  animation: floatB 11s ease-in-out infinite 0.8s; }
+.shape--6  { width: 50px;  top: 70%;  left: 48%;  animation: floatC 7.5s ease-in-out infinite 2s; }
+.shape--7  { width: 130px; top: 8%;   left: 65%;  animation: floatA 9.5s ease-in-out infinite 0.3s; }
+.shape--8  { width: 70px;  top: 62%;  left: 68%;  animation: floatB 8.5s ease-in-out infinite 1.2s; }
+.shape--9  { width: 100px; top: 5%;   left: 85%;  animation: floatC 10s ease-in-out infinite 0.6s; }
+.shape--10 { width: 40px;  top: 42%;  left: 90%;  animation: floatA 7s ease-in-out infinite 1.8s; }
+.shape--11 { width: 110px; top: 50%;  left: 82%;  animation: floatB 9s ease-in-out infinite 2.2s; }
+.shape--12 { width: 55px;  top: 78%;  left: 38%;  animation: floatC 8s ease-in-out infinite 0.9s; }
+
+/* ── Float keyframes ── */
+@keyframes floatA {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50%      { transform: translateY(-18px) rotate(4deg); }
+}
+
+@keyframes floatB {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  33%      { transform: translateY(14px) rotate(-3deg); }
+  66%      { transform: translateY(-10px) rotate(2deg); }
+}
+
+@keyframes floatC {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  50%      { transform: translate(10px, -16px) rotate(-5deg); }
+}
+
+/* ── Center play icon ── */
+.placeholder-play {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 64px;
+  height: 64px;
+  color: #b0b0b0;
+  z-index: 1;
+  animation: playPulse 3s ease-in-out infinite;
+}
+
+.placeholder-play svg {
+  width: 100%;
+  height: 100%;
+}
+
+@keyframes playPulse {
+  0%, 100% { opacity: 0.6; transform: translate(-50%, -50%) scale(1); }
+  50%      { opacity: 1;   transform: translate(-50%, -50%) scale(1.08); }
+}
+
+/* ── Mobile adjustments ── */
+@media screen and (max-width: 749px) {
+  .placeholder-shape { opacity: 0.55; }
+  .shape--1  { width: 90px; }
+  .shape--2  { width: 70px; }
+  .shape--5  { width: 110px; }
+  .shape--7  { width: 85px; }
+  .shape--9  { width: 65px; }
+  .shape--11 { width: 75px; }
+  .placeholder-play { width: 48px; height: 48px; }
+}
+
+.banner-video__overlay {
+  position: absolute;
+  inset: 0;
+  background: var(--overlay-color, #000);
+  opacity: var(--overlay-opacity, 0.3);
+  pointer-events: none;
+}
+
+.banner-video__content {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  justify-content: center;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: var(--content-position, center);
+  text-align: center;
+  padding: 0 5vw;
+  color: var(--text-color, #fff);
+  gap: 0.9rem;
+}
+
+.banner-video__subheading {
+  margin: 0;
+  font-size: 0.85rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  font-weight: 500;
+  opacity: 0.9;
+}
+
+.banner-video__heading {
+  margin: 0;
+  font-size: clamp(2rem, 4.5vw, 3.75rem);
+  line-height: 1.1;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  max-width: 42ch;
+}
+
+.banner-video__text {
+  margin: 0;
+  max-width: 46ch;
+  font-size: 1rem;
+  line-height: 1.6;
+  opacity: 0.92;
+}
+
+.banner-video__button {
+  margin-top: 0.6rem;
+  display: inline-block;
+  padding: 0.9rem 2.4rem;
+  border: 1px solid var(--text-color, #fff);
+  color: var(--text-color, #fff);
+  text-decoration: none;
+  font-size: 0.8rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  background: transparent;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+.banner-video__button:hover {
+  background: var(--text-color, #fff);
+  color: #000;
+}
+
+.banner-video__sound-toggle {
+  position: absolute;
+  bottom: 24px;
+  right: 24px;
+  z-index: 3;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  background: rgba(0, 0, 0, 0.35);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.25s ease;
+}
+
+.banner-video__sound-toggle:hover {
+  background: rgba(0, 0, 0, 0.55);
+}
+
+@media screen and (max-width: 749px) {
+  .banner-video:not(.banner-video--adapt):not(.banner-video--screen) {
+    height: min(var(--section-height, 600px), 70vh);
+  }
+
+  .banner-video__content {
+    gap: 0.6rem;
+  }
+
+  .banner-video__subheading {
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+  }
+
+  .banner-video__text {
+    font-size: 0.9rem;
+  }
+
+  .banner-video__button {
+    padding: 0.75rem 1.8rem;
+    font-size: 0.72rem;
+  }
+
+  .banner-video__sound-toggle {
+    bottom: 16px;
+    right: 16px;
+    width: 34px;
+    height: 34px;
+  }
+}

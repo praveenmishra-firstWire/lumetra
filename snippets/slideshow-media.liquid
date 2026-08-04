@@ -1,0 +1,43 @@
+{%- comment -%}
+  Renders the background media (image or video) for one slideshow slide.
+  Expects: block, index (0-based position, used to decide eager vs lazy loading)
+{%- endcomment -%}
+
+{%- liquid
+  assign is_first = false
+  if index == 0
+    assign is_first = true
+  endif
+-%}
+
+<div class="slideshow__media">
+  {%- if block.settings.media_type == 'video' and block.settings.video != blank -%}
+    {{ block.settings.video | video_tag: autoplay: true, loop: true, muted: true, controls: false, image_size: '1920x', preload: 'none', class: 'slideshow__video' }}
+  {%- elsif block.settings.image != blank -%}
+    <img
+      class="slideshow__image"
+      srcset="
+        {{ block.settings.image | image_url: width: 375 }} 375w,
+        {{ block.settings.image | image_url: width: 750 }} 750w,
+        {{ block.settings.image | image_url: width: 1100 }} 1100w,
+        {{ block.settings.image | image_url: width: 1500 }} 1500w,
+        {{ block.settings.image | image_url: width: 1920 }} 1920w,
+        {{ block.settings.image | image_url: width: 2400 }} 2400w
+      "
+      sizes="100vw"
+      src="{{ block.settings.image | image_url: width: 1500 }}"
+      alt="{{ block.settings.image.alt | default: block.settings.heading | escape }}"
+      width="{{ block.settings.image.width }}"
+      height="{{ block.settings.image.height }}"
+      loading="{{ is_first | default: false | ternary: 'eager', 'lazy' }}"
+      fetchpriority="{{ is_first | default: false | ternary: 'high', 'auto' }}"
+      decoding="async"
+      style="object-position: {{ block.settings.image.presentation.focal_point | default: '50% 50%' }};"
+    >
+  {%- else -%}
+    <div class="slideshow__placeholder">
+      {{ 'lifestyle-1' | placeholder_svg_tag: 'slideshow__placeholder-svg' }}
+    </div>
+  {%- endif -%}
+  <div class="slideshow__overlay" style="--overlay-opacity: {{ block.settings.overlay_opacity | divided_by: 100.0 }};"></div>
+</div>

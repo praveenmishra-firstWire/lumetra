@@ -1,59 +1,72 @@
-{% doc %}
-  Renders a text block.
+{%- doc -%}
+  Renders a block of rich text. Reusable across any section that opts in
+  to theme blocks (e.g. via {% content_for 'blocks' %}).
 
-  @example
-  {% content_for 'block', type: 'text', id: 'text' %}
-{% enddoc %}
+  To highlight part of the text, turn on "Highlight part of the text"
+  below, then select a phrase and click Italic — that phrase gets the
+  chosen highlight style instead of italics.
+{%- enddoc -%}
 
-<div
-  class="text {{ block.settings.text_style }}"
-  style="--text-align: {{ block.settings.alignment }}"
-  {{ block.shopify_attributes }}
->
-  {{ block.settings.text }}
-</div>
-
-{% stylesheet %}
-  .text {
-    text-align: var(--text-align);
-  }
-  .text--title {
-    font-size: 2rem;
-    font-weight: 700;
-  }
-  .text--subtitle {
-    font-size: 1.5rem;
-  }
-{% endstylesheet %}
+{%- if block.settings.text != blank -%}
+  <div class="text-block" {{ block.shopify_attributes }}>
+    {%- render 'highlight-text',
+      text: block.settings.text,
+      enabled: block.settings.enable_highlight,
+      style: block.settings.highlight_style,
+      color: block.settings.highlight_color
+    -%}
+  </div>
+{%- endif -%}
 
 {% schema %}
 {
-  "name": "t:general.text",
+  "name": "Text",
   "settings": [
     {
-      "type": "text",
+      "type": "richtext",
       "id": "text",
-      "label": "t:labels.text",
-      "default": "Text"
+      "label": "Text",
+      "default": "<p>Transform your space into a green oasis with our handpicked indoor plants that purify the air and lift your mood.</p>"
+    },
+    {
+      "type": "header",
+      "content": "Highlight"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_highlight",
+      "label": "Highlight part of the text",
+      "info": "Select a phrase above and click Italic to mark it as the highlighted part.",
+      "default": false
     },
     {
       "type": "select",
-      "id": "text_style",
-      "label": "t:labels.text_style",
+      "id": "highlight_style",
+      "label": "Highlight style",
       "options": [
-        { "value": "text--title", "label": "t:options.text_style.title" },
-        { "value": "text--subtitle", "label": "t:options.text_style.subtitle" },
-        { "value": "text--normal", "label": "t:options.text_style.normal" }
+        { "value": "marker", "label": "Marker" },
+        { "value": "circle", "label": "Circle" },
+        { "value": "underline", "label": "Underline" },
+        { "value": "bold-underline", "label": "Bold underline" },
+        { "value": "modern-underline", "label": "Modern underline" },
+        { "value": "sketch-underline", "label": "Sketch underline" },
+        { "value": "squiggle", "label": "Squiggle" },
+        { "value": "heavy-squiggle", "label": "Heavy squiggle" },
+        { "value": "solid-color", "label": "Solid color" }
       ],
-      "default": "text--title"
+      "default": "marker"
     },
     {
-      "type": "text_alignment",
-      "id": "alignment",
-      "label": "t:labels.alignment",
-      "default": "left"
+      "type": "color",
+      "id": "highlight_color",
+      "label": "Highlight color",
+      "default": "#ffd43b"
     }
   ],
-  "presets": [{ "name": "t:general.text" }]
+  "presets": [
+    {
+      "name": "Text"
+    }
+  ]
 }
 {% endschema %}

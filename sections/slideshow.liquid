@@ -1,0 +1,397 @@
+{{ 'slideshow.css' | asset_url | stylesheet_tag }}
+
+{%- style -%}
+  {{ section.settings.heading_font | font_face: font_display: 'swap' }}
+  {{ section.settings.heading_font | font_modify: 'weight', 'bold' | font_face: font_display: 'swap' }}
+  {{ section.settings.text_font | font_face: font_display: 'swap' }}
+  {{ section.settings.text_font | font_modify: 'weight', 'bold' | font_face: font_display: 'swap' }}
+  {{ section.settings.text_font | font_modify: 'style', 'italic' | font_face: font_display: 'swap' }}
+
+  #shopify-section-{{ section.id }} {
+    --heading-font-family: {{ section.settings.heading_font.family }}, {{ section.settings.heading_font.fallback_families }};
+    --heading-font-style: {{ section.settings.heading_font.style }};
+    --heading-font-weight: {{ section.settings.heading_font.weight }};
+    --text-font-family: {{ section.settings.text_font.family }}, {{ section.settings.text_font.fallback_families }};
+    --overlay-color: {{ section.settings.overlay_color }};
+  }
+
+  #Slideshow-{{ section.id }} {
+    --height-desktop: {% case section.settings.height_desktop %}{% when 'small' %}400px{% when 'medium' %}550px{% when 'large' %}700px{% when 'full_screen' %}100vh{% endcase %};
+    --height-mobile: {% case section.settings.height_mobile %}{% when 'small' %}400px{% when 'medium' %}550px{% when 'large' %}700px{% when 'full_screen' %}100svh{% endcase %};
+  }
+{%- endstyle -%}
+
+<slideshow-component
+  class="slideshow"
+  id="Slideshow-{{ section.id }}"
+  data-autoplay="{{ section.settings.autoplay }}"
+  data-autoplay-speed="{{ section.settings.autoplay_speed | times: 1000 }}"
+  aria-roledescription="carousel"
+  aria-label="{{ section.settings.heading | default: 'Slideshow' | escape }}"
+>
+  <div class="slideshow__track">
+    {%- for block in section.blocks -%}
+      {%- liquid
+        assign slide_number = forloop.index
+        assign slide_total = section.blocks.size
+      -%}
+      <div
+        class="slideshow__slide{% if forloop.first %} is-active{% endif %}"
+        data-index="{{ forloop.index0 }}"
+        role="group"
+        aria-roledescription="slide"
+        aria-label="{{ slide_number }} of {{ slide_total }}"
+        {% unless forloop.first %}
+          aria-hidden="true"
+        {% endunless %}
+        {{ block.shopify_attributes }}
+      >
+        {%- render 'slideshow-media', block: block, index: forloop.index0 -%}
+        {%- render 'slideshow-content', block: block -%}
+      </div>
+    {%- endfor -%}
+  </div>
+
+  {%- if section.blocks.size > 1 -%}
+    <button type="button" class="slideshow__arrow slideshow__arrow--prev" aria-label="Previous slide">
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+        width="20"
+        height="20"
+        aria-hidden="true"
+      >
+        <path d="m15 5-7 7 7 7"/>
+      </svg>
+    </button>
+    <button type="button" class="slideshow__arrow slideshow__arrow--next" aria-label="Next slide">
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+        width="20"
+        height="20"
+        aria-hidden="true"
+      >
+        <path d="m9 5 7 7-7 7"/>
+      </svg>
+    </button>
+
+    {%- if section.settings.show_counter -%}
+      {%- liquid
+        assign slide_total = section.blocks.size
+        assign slide_total_padded = slide_total
+        if slide_total < 10
+          assign slide_total_padded = slide_total | prepend: '0'
+        endif
+      -%}
+      <div class="slideshow__counter" aria-hidden="true">
+        <span class="slideshow__counter-current">01</span> /
+        <span class="slideshow__counter-total">{{ slide_total_padded }}</span>
+      </div>
+    {%- endif -%}
+
+    {%- if section.settings.autoplay -%}
+      <button type="button" class="slideshow__playpause" aria-label="Pause slideshow" aria-pressed="false">
+        <svg class="icon-pause" viewBox="0 0 24 24" fill="currentColor" width="14" height="14" aria-hidden="true">
+          <rect x="5" y="4" width="4" height="16"/><rect x="15" y="4" width="4" height="16"/>
+        </svg>
+        <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor" width="14" height="14" aria-hidden="true" hidden>
+          <path d="M6 4l14 8-14 8V4z"/>
+        </svg>
+      </button>
+    {%- endif -%}
+
+    {%- if section.settings.show_dots -%}
+      <div class="slideshow__dots" role="tablist" aria-label="Slide navigation"></div>
+    {%- endif -%}
+
+    {%- if section.settings.show_progress_bar -%}
+      <div class="slideshow__progress"><div class="slideshow__progress-bar"></div></div>
+    {%- endif -%}
+  {%- endif -%}
+
+  {%- if section.settings.show_scroll_indicator -%}
+    <a href="#" class="slideshow__scroll" data-scroll-next>
+      <span>{{ section.settings.scroll_label | default: 'Scroll' }}</span>
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+        width="14"
+        height="14"
+        aria-hidden="true"
+      >
+        <path d="M12 4v16M6 14l6 6 6-6"/>
+      </svg>
+    </a>
+  {%- endif -%}
+</slideshow-component>
+
+<script src="{{ 'slideshow.js' | asset_url }}" defer="defer"></script>
+
+{% schema %}
+{
+  "name": "Slideshow",
+  "class": "shopify-section--slideshow",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "height_desktop",
+      "label": "Height on large screens",
+      "options": [
+        { "value": "small", "label": "Small" },
+        { "value": "medium", "label": "Medium" },
+        { "value": "large", "label": "Large" },
+        { "value": "full_screen", "label": "Full screen" }
+      ],
+      "default": "large"
+    },
+    {
+      "type": "select",
+      "id": "height_mobile",
+      "label": "Height on small screens",
+      "options": [
+        { "value": "small", "label": "Small" },
+        { "value": "medium", "label": "Medium" },
+        { "value": "large", "label": "Large" },
+        { "value": "full_screen", "label": "Full screen" }
+      ],
+      "default": "medium"
+    },
+    {
+      "type": "font_picker",
+      "id": "heading_font",
+      "label": "Heading font",
+      "default": "work_sans_n4"
+    },
+    {
+      "type": "font_picker",
+      "id": "text_font",
+      "label": "Body font",
+      "default": "work_sans_n4"
+    },
+    {
+      "type": "header",
+      "content": "Autoplay"
+    },
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "label": "Autoplay slides",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "autoplay_speed",
+      "label": "Change slides every",
+      "min": 3,
+      "max": 9,
+      "step": 1,
+      "unit": "s",
+      "default": 5
+    },
+    {
+      "type": "header",
+      "content": "Navigation"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_dots",
+      "label": "Show dot navigation",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_progress_bar",
+      "label": "Show progress bar",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_counter",
+      "label": "Show slide counter",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_scroll_indicator",
+      "label": "Show scroll indicator",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "scroll_label",
+      "label": "Scroll indicator label",
+      "default": "Scroll"
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "overlay_color",
+      "label": "Overlay color",
+      "default": "#000000"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "slide",
+      "name": "Slide",
+      "settings": [
+        {
+          "type": "select",
+          "id": "media_type",
+          "label": "Media type",
+          "options": [
+            { "value": "image", "label": "Image" },
+            { "value": "video", "label": "Video" }
+          ],
+          "default": "image"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "video",
+          "id": "video",
+          "label": "Video"
+        },
+        {
+          "type": "range",
+          "id": "overlay_opacity",
+          "label": "Overlay opacity",
+          "min": 0,
+          "max": 80,
+          "step": 5,
+          "unit": "%",
+          "default": 30
+        },
+        {
+          "type": "header",
+          "content": "Content"
+        },
+        {
+          "type": "select",
+          "id": "content_position",
+          "label": "Content position",
+          "options": [
+            { "value": "top-left", "label": "Top left" },
+            { "value": "top-center", "label": "Top center" },
+            { "value": "top-right", "label": "Top right" },
+            { "value": "middle-left", "label": "Middle left" },
+            { "value": "middle-center", "label": "Middle center" },
+            { "value": "middle-right", "label": "Middle right" },
+            { "value": "bottom-left", "label": "Bottom left" },
+            { "value": "bottom-center", "label": "Bottom center" },
+            { "value": "bottom-right", "label": "Bottom right" }
+          ],
+          "default": "middle-left"
+        },
+        {
+          "type": "text",
+          "id": "eyebrow",
+          "label": "Label",
+          "default": "New collection"
+        },
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading",
+          "default": "Crafted for modern living"
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Text",
+          "default": "<p>Timeless design. Premium materials. Made for everyday luxury.</p>"
+        },
+        {
+          "type": "color",
+          "id": "text_color",
+          "label": "Text color",
+          "default": "#ffffff"
+        },
+        {
+          "type": "header",
+          "content": "Buttons"
+        },
+        {
+          "type": "text",
+          "id": "button_1_label",
+          "label": "First button label",
+          "default": "Shop collection"
+        },
+        {
+          "type": "url",
+          "id": "button_1_link",
+          "label": "First button link"
+        },
+        {
+          "type": "text",
+          "id": "button_2_label",
+          "label": "Second button label",
+          "default": "Learn more"
+        },
+        {
+          "type": "url",
+          "id": "button_2_link",
+          "label": "Second button link"
+        }
+      ]
+    }
+  ],
+  "max_blocks": 8,
+  "presets": [
+    {
+      "name": "Slideshow",
+      "blocks": [
+        {
+          "type": "slide",
+          "settings": {
+            "eyebrow": "New collection",
+            "heading": "Crafted for modern living",
+            "text": "<p>Timeless design. Premium materials. Made for everyday luxury.</p>",
+            "content_position": "middle-left",
+            "button_1_label": "Shop collection",
+            "button_2_label": "Learn more"
+          }
+        },
+        {
+          "type": "slide",
+          "settings": {
+            "eyebrow": "New arrival",
+            "heading": "Details that define excellence",
+            "text": "<p>Every piece is thoughtfully designed to stand the test of time.</p>",
+            "content_position": "bottom-left",
+            "button_1_label": "Shop now",
+            "button_2_label": "Explore"
+          }
+        },
+        {
+          "type": "slide",
+          "settings": {
+            "eyebrow": "New arrival",
+            "heading": "Elevate your space",
+            "text": "<p>Minimal. Modern. Timeless. Made for you.</p>",
+            "content_position": "top-center",
+            "button_1_label": "Shop now"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

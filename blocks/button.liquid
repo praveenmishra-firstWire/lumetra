@@ -1,26 +1,26 @@
-{%- liquid
-  assign style_class = 'button--' | append: block.settings.style
-  assign size_class = ''
-  if block.settings.size != 'medium'
-    assign size_class = 'button--' | append: block.settings.size
-  endif
-  assign target = ''
-  assign rel = ''
-  if block.settings.open_in_new_tab
-    assign target = '_blank'
-    assign rel = 'noopener noreferrer'
-  endif
--%}
+{%- doc -%}
+  Renders a button/link. Reusable across any section that opts in to
+  theme blocks (e.g. via {% content_for 'blocks' %}). Visual style (fill
+  vs. outline, colors, corner radius) is intentionally left to the parent
+  section's CSS variables, so the same button block looks native wherever
+  it's dropped.
+{%- enddoc -%}
 
-<a
-  href="{{ block.settings.link | default: '#' }}"
-  class="button {{ style_class }} {{ size_class }}"
-  {% if target != '' %}target="{{ target }}" rel="{{ rel }}"{% endif %}
-  {% if block.settings.link == blank %}role="link" aria-disabled="true"{% endif %}
-  {{ block.shopify_attributes }}
->
-  {{ block.settings.label }}
-</a>
+{%- if block.settings.label != blank -%}
+  <a
+    href="{{ block.settings.link | default: '#' }}"
+    class="button-block"
+    {% if block.settings.link == blank %}role="link" aria-disabled="true"{% endif %}
+    {{ block.shopify_attributes }}
+  >
+    {{ block.settings.label }}
+    {%- if block.settings.show_arrow -%}
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" aria-hidden="true">
+        <path d="M5 12h14M13 6l6 6-6 6" />
+      </svg>
+    {%- endif -%}
+  </a>
+{%- endif -%}
 
 {% schema %}
 {
@@ -29,44 +29,25 @@
     {
       "type": "text",
       "id": "label",
-      "label": "Label",
+      "label": "Button label",
       "default": "Shop collection"
     },
     {
       "type": "url",
       "id": "link",
-      "label": "Link"
-    },
-    {
-      "type": "select",
-      "id": "style",
-      "label": "Style",
-      "options": [
-        { "value": "primary", "label": "Primary (solid)" },
-        { "value": "secondary", "label": "Secondary (outline)" }
-      ],
-      "default": "primary"
-    },
-    {
-      "type": "select",
-      "id": "size",
-      "label": "Size",
-      "options": [
-        { "value": "small", "label": "Small" },
-        { "value": "medium", "label": "Medium" },
-        { "value": "large", "label": "Large" }
-      ],
-      "default": "medium"
+      "label": "Button link"
     },
     {
       "type": "checkbox",
-      "id": "open_in_new_tab",
-      "label": "Open link in new tab",
-      "default": false
+      "id": "show_arrow",
+      "label": "Show arrow icon",
+      "default": true
     }
   ],
   "presets": [
-    { "name": "Button" }
+    {
+      "name": "Button"
+    }
   ]
 }
 {% endschema %}

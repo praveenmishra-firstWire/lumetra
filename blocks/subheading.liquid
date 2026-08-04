@@ -1,72 +1,82 @@
-{{ 'subheading-block.css' | asset_url | stylesheet_tag }}
+{%- doc -%}
+  Renders a small, uppercase eyebrow-style label. Reusable across any
+  section that opts in to theme blocks (e.g. via {% content_for 'blocks' %}).
 
-<div class="subheading-block {% if block.settings.uppercase %}is-uppercase{% endif %}" {{ block.shopify_attributes }}>
-  {%- if block.settings.show_line and block.settings.line_position == 'before' -%}
-    <hr class="subheading-block__line">
-  {%- endif -%}
-  <span class="subheading-block__text" style="font-size: {{ block.settings.size }}px; color: {{ block.settings.color }};">
-    {{ block.settings.text }}
-  </span>
-  {%- if block.settings.show_line and block.settings.line_position == 'after' -%}
-    <hr class="subheading-block__line">
-  {%- endif -%}
-</div>
+  To highlight part of the text, turn on "Highlight part of the text"
+  below, then select a phrase and click Italic — that phrase gets the
+  chosen highlight style instead of italics.
+{%- enddoc -%}
+
+{%- if block.settings.text != blank -%}
+  <p
+    class="subheading-block"
+    style="--subheading-color: {{ block.settings.color }};"
+    {{ block.shopify_attributes }}
+  >
+    {%- render 'highlight-text',
+      text: block.settings.text,
+      enabled: block.settings.enable_highlight,
+      style: block.settings.highlight_style,
+      color: block.settings.highlight_color
+    -%}
+  </p>
+{%- endif -%}
 
 {% schema %}
 {
   "name": "Subheading",
   "settings": [
     {
-      "type": "text",
+      "type": "inline_richtext",
       "id": "text",
       "label": "Text",
-      "default": "New collection"
-    },
-    {
-      "type": "range",
-      "id": "size",
-      "label": "Font size",
-      "min": 10,
-      "max": 32,
-      "step": 1,
-      "unit": "px",
-      "default": 13
-    },
-    {
-      "type": "checkbox",
-      "id": "uppercase",
-      "label": "Uppercase",
-      "default": true
+      "default": "Bring nature home"
     },
     {
       "type": "color",
       "id": "color",
       "label": "Text color",
-      "default": "#FFFFFF"
+      "default": "#6b8058"
     },
     {
       "type": "header",
-      "content": "Divider line"
+      "content": "Highlight"
     },
     {
       "type": "checkbox",
-      "id": "show_line",
-      "label": "Show line",
-      "default": true
+      "id": "enable_highlight",
+      "label": "Highlight part of the text",
+      "info": "Select a phrase above and click Italic to mark it as the highlighted part.",
+      "default": false
     },
     {
       "type": "select",
-      "id": "line_position",
-      "label": "Line position",
+      "id": "highlight_style",
+      "label": "Highlight style",
       "options": [
-        { "value": "before", "label": "Before text" },
-        { "value": "after", "label": "After text" }
+        { "value": "marker", "label": "Marker" },
+        { "value": "circle", "label": "Circle" },
+        { "value": "underline", "label": "Underline" },
+        { "value": "bold-underline", "label": "Bold underline" },
+        { "value": "modern-underline", "label": "Modern underline" },
+        { "value": "sketch-underline", "label": "Sketch underline" },
+        { "value": "squiggle", "label": "Squiggle" },
+        { "value": "heavy-squiggle", "label": "Heavy squiggle" },
+        { "value": "solid-color", "label": "Solid color" }
       ],
-      "default": "after"
+      "default": "marker"
+    },
+    {
+      "type": "color",
+      "id": "highlight_color",
+      "label": "Highlight color",
+      "default": "#ffd43b"
     }
   ],
   "presets": [
-    { "name": "Subheading" }
+    {
+      "name": "Subheading"
+    }
   ]
 }
 {% endschema %}

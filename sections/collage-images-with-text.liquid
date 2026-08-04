@@ -1,0 +1,368 @@
+{{ 'collage-images-with-text.css' | asset_url | stylesheet_tag }}
+
+{%- style -%}
+  #shopify-section-{{ section.id }} {
+    --civt-padding-top: {{ section.settings.padding_top }}px;
+    --civt-padding-bottom: {{ section.settings.padding_bottom }}px;
+    --civt-bg: {{ section.settings.background_color }};
+    --civt-fg: {{ section.settings.text_color }};
+    --civt-fg-rgb: {{ section.settings.text_color.red }}, {{ section.settings.text_color.green }}, {{ section.settings.text_color.blue }};
+    --civt-highlight: {{ section.settings.highlight_color.red }}, {{ section.settings.highlight_color.green }}, {{ section.settings.highlight_color.blue }};
+  }
+{%- endstyle -%}
+
+<div class="civt-section{% if section.settings.full_width %} civt-section--full-width{% endif %}">
+  <div class="civt page-width{% if section.settings.full_width %} civt--full-width{% endif %}{% if section.settings.layout == 'text_first' %} civt--reverse{% endif %}">
+
+    <div class="civt__images-col">
+      <div class="civt-collage-frame">
+        <div class="civt-collage" data-civt-collage>
+
+          {%- capture sizes -%}(min-width: 990px) 30vw, (min-width: 750px) 45vw, 60vw{%- endcapture -%}
+
+          {%- for i in (1..4) -%}
+            {%- assign img_key = 'image' -%}
+            {%- if i > 1 -%}{%- assign img_key = 'image_' | append: i -%}{%- endif -%}
+            {%- assign current_image = section.settings[img_key] -%}
+            {%- if current_image != blank -%}
+              <div class="civt-collage__item civt-collage__item--{{ i }}">
+                {{ current_image | image_url: width: 1500 | image_tag: loading: 'lazy', sizes: sizes, widths: '275, 550, 750, 1100, 1500', class: 'civt-collage__img' }}
+              </div>
+            {%- elsif i == 1 -%}
+              <div class="civt-collage__item civt-collage__item--{{ i }} civt-collage__item--placeholder">
+                {{ 'image' | placeholder_svg_tag: 'civt-collage__placeholder' }}
+              </div>
+            {%- endif -%}
+          {%- endfor -%}
+        </div>
+      </div>
+    </div>
+
+    <div class="civt__content-col" data-civt-content>
+      <div class="civt__content civt__content--{{ section.settings.content_position }} text-{{ section.settings.text_alignment }}">
+
+        {%- for block in section.blocks -%}
+          {%- case block.type -%}
+
+            {%- when 'label' -%}
+              {%- if block.settings.label_text != blank -%}
+                <p class="civt__label" {{ block.shopify_attributes }}>
+                  {{- block.settings.label_text -}}
+                  {%- if block.settings.label_highlight != blank -%}
+                    <mark class="civt__highlight">{{ block.settings.label_highlight }}</mark>
+                  {%- endif -%}
+                </p>
+              {%- endif -%}
+
+            {%- when 'heading' -%}
+              {%- if block.settings.heading != blank -%}
+                <{{ block.settings.heading_tag }} class="civt__heading civt__heading--{{ block.settings.heading_size }}" {{ block.shopify_attributes }}>
+                  {{ block.settings.heading }}
+                </{{ block.settings.heading_tag }}>
+              {%- endif -%}
+
+            {%- when 'text' -%}
+              {%- if block.settings.text != blank -%}
+                <div class="civt__text rte" {{ block.shopify_attributes }}>
+                  {{ block.settings.text }}
+                </div>
+              {%- endif -%}
+
+            {%- when 'button' -%}
+              {%- if block.settings.button_label != blank -%}
+                {%- style -%}
+                  #shopify-section-{{ section.id }} [data-block-id="{{ block.id }}"] {
+                    --button-bg: {{ block.settings.button_bg }};
+                    --button-color: {{ block.settings.button_color }};
+                    --button-hover-bg: {{ block.settings.button_hover_bg }};
+                    --button-hover-color: {{ block.settings.button_hover_color }};
+                    --border-radius: {{ block.settings.border_radius }}px;
+                  }
+                {%- endstyle -%}
+                <div class="civt__buttons" data-block-id="{{ block.id }}" {{ block.shopify_attributes }}>
+                  {%- capture button_svg -%}<svg viewBox="0 0 24 24" fill="none" width="18" height="18"><path d="M5 12H19" stroke="currentColor" stroke-width="1.5"/><path d="M13 6L19 12L13 18" stroke="currentColor" stroke-width="1.5"/></svg>{%- endcapture -%}
+                  {%- if block.settings.button_link != blank -%}
+                    <a href="{{ block.settings.button_link }}" class="civt__button{% if block.settings.button_style_secondary %} civt__button--secondary{% endif %}"><span>{{ block.settings.button_label | escape }}</span>{{ button_svg }}</a>
+                  {%- else -%}
+                    <a role="link" aria-disabled="true" class="civt__button{% if block.settings.button_style_secondary %} civt__button--secondary{% endif %}"><span>{{ block.settings.button_label | escape }}</span>{{ button_svg }}</a>
+                  {%- endif -%}
+                </div>
+              {%- endif -%}
+
+          {%- endcase -%}
+        {%- endfor -%}
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="{{ 'collage-images-with-text.js' | asset_url }}" defer="defer"></script>
+
+{% schema %}
+{
+  "name": "Collage images with text",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Images"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Image 1 (main / hero)"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_2",
+      "label": "Image 2 (top right)"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_3",
+      "label": "Image 3 (top left)"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_4",
+      "label": "Image 4 (bottom left)"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "layout",
+      "options": [
+        { "value": "image_first", "label": "Images first" },
+        { "value": "text_first", "label": "Text first" }
+      ],
+      "default": "image_first",
+      "label": "Layout",
+      "info": "Controls which column shows first on larger screens."
+    },
+    {
+      "type": "select",
+      "id": "content_position",
+      "options": [
+        { "value": "top", "label": "Top" },
+        { "value": "middle", "label": "Middle" },
+        { "value": "bottom", "label": "Bottom" }
+      ],
+      "default": "middle",
+      "label": "Content vertical position"
+    },
+    {
+      "type": "select",
+      "id": "text_alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "left",
+      "label": "Text alignment"
+    },
+    {
+      "type": "checkbox",
+      "id": "full_width",
+      "default": false,
+      "label": "Make section full width"
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#1a1a1a"
+    },
+    {
+      "type": "color",
+      "id": "highlight_color",
+      "label": "Text highlight color",
+      "default": "#ffb503"
+    },
+    {
+      "type": "header",
+      "content": "Padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Top padding",
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Bottom padding",
+      "default": 36
+    }
+  ],
+  "blocks": [
+    {
+      "type": "label",
+      "name": "Label",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "label_text",
+          "label": "Label text",
+          "default": "Give the gift "
+        },
+        {
+          "type": "text",
+          "id": "label_highlight",
+          "label": "Highlighted text",
+          "default": "that grows",
+          "info": "Shown with the highlight color as a background."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "name": "Heading",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "default": "Meaningful gifting",
+          "label": "Heading"
+        },
+        {
+          "type": "select",
+          "id": "heading_size",
+          "options": [
+            { "value": "h2", "label": "Small" },
+            { "value": "h1", "label": "Medium" },
+            { "value": "h0", "label": "Large" }
+          ],
+          "default": "h1",
+          "label": "Heading size"
+        },
+        {
+          "type": "select",
+          "id": "heading_tag",
+          "options": [
+            { "value": "h1", "label": "H1" },
+            { "value": "h2", "label": "H2" },
+            { "value": "h3", "label": "H3" },
+            { "value": "div", "label": "None (div)" }
+          ],
+          "default": "h2",
+          "label": "Heading HTML tag",
+          "info": "Use for SEO purposes."
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "name": "Text",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "richtext",
+          "id": "text",
+          "default": "<p>Select next day delivery & add a personal gift message at checkout. Our studio team will handwrite your note on our beautiful gift card for an extra special touch!</p>",
+          "label": "Text"
+        }
+      ]
+    },
+    {
+      "type": "button",
+      "name": "Button",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "button_label",
+          "default": "Shop gifts",
+          "label": "Button label"
+        },
+        {
+          "type": "url",
+          "id": "button_link",
+          "label": "Button link"
+        },
+        {
+          "type": "checkbox",
+          "id": "button_style_secondary",
+          "default": false,
+          "label": "Use outline style"
+        },
+        {
+          "type": "header",
+          "content": "Button style"
+        },
+        {
+          "type": "range",
+          "id": "border_radius",
+          "label": "Button radius",
+          "min": 0,
+          "max": 40,
+          "step": 2,
+          "unit": "px",
+          "default": 4
+        },
+        {
+          "type": "color",
+          "id": "button_bg",
+          "label": "Button background",
+          "default": "#111111"
+        },
+        {
+          "type": "color",
+          "id": "button_color",
+          "label": "Button text",
+          "default": "#FFFFFF"
+        },
+        {
+          "type": "color",
+          "id": "button_hover_bg",
+          "label": "Button hover background",
+          "default": "#333333"
+        },
+        {
+          "type": "color",
+          "id": "button_hover_color",
+          "label": "Button hover text",
+          "default": "#FFFFFF"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Collage images with text",
+      "blocks": [
+        { "type": "label" },
+        { "type": "heading" },
+        { "type": "text" },
+        { "type": "button" }
+      ]
+    }
+  ]
+}
+{% endschema %}

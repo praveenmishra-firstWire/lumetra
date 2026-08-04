@@ -1,0 +1,220 @@
+/* ==========================================================================
+   Banner with text section
+   ========================================================================== */
+
+.banner-with-text,
+.banner-with-text *,
+.banner-with-text *::before,
+.banner-with-text *::after {
+  box-sizing: border-box;
+}
+
+.banner-with-text {
+  position: relative;
+  display: flex;
+  width: 100%;
+  min-height: 420px;
+  padding-top: var(--padding-top, 0);
+  padding-bottom: var(--padding-bottom, 0);
+}
+
+@media (max-width: 749px) {
+  .banner-with-text {
+    flex-direction: column;
+    min-height: 0;
+  }
+}
+
+/* ---- Image side ---- */
+.banner-with-text__image {
+  position: relative;
+  flex: 1 1 50%;
+  min-height: 320px;
+  order: 2;
+  overflow: hidden;
+}
+.banner-with-text[data-image-position="left"] .banner-with-text__image {
+  order: 0;
+}
+.banner-with-text[data-image-position="left"] .banner-with-text__content {
+  order: 1;
+}
+
+.banner-with-text__image-el {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.banner-with-text__image-placeholder {
+  position: absolute;
+  inset: 0;
+  background: #e5e2da;
+}
+.banner-with-text__placeholder-svg {
+  width: 100%;
+  height: 100%;
+}
+
+.banner-with-text__overlay {
+  position: absolute;
+  inset: 0;
+  background: var(--overlay-color, #000);
+  opacity: var(--overlay-opacity, 0.3);
+  pointer-events: none;
+}
+
+@media (max-width: 749px) {
+  .banner-with-text__image {
+    order: 0 !important;
+    flex: 1 1 auto;
+    min-height: 260px;
+  }
+  .banner-with-text__content {
+    order: 1 !important;
+  }
+}
+
+/* ---- Content side ---- */
+.banner-with-text__content {
+  position: relative;
+  z-index: 2;
+  flex: 1 1 50%;
+  display: flex;
+  flex-direction: column;
+  background: var(--content-bg, transparent);
+  color: var(--text-color, inherit);
+  padding: var(--content-padding-top-desktop, 56px) var(--content-padding-right-desktop, 56px)
+    var(--content-padding-bottom-desktop, 56px) var(--content-padding-left-desktop, 56px);
+}
+
+@media (max-width: 749px) {
+  .banner-with-text__content {
+    padding: var(--content-padding-top-mobile, 40px) var(--content-padding-right-mobile, 24px)
+      var(--content-padding-bottom-mobile, 40px) var(--content-padding-left-mobile, 24px);
+  }
+}
+
+/* Boxed (default): normal side-by-side flex row, each 50% wide. */
+/* Full width: image fills the section and content overlays on top. */
+.banner-with-text[data-content-width="full_width"] {
+  display: block;
+}
+.banner-with-text[data-content-width="full_width"] .banner-with-text__image {
+  position: absolute;
+  inset: 0;
+  order: 0;
+}
+.banner-with-text[data-content-width="full_width"] .banner-with-text__content {
+  position: relative;
+  width: 100%;
+  min-height: 480px;
+  background: transparent;
+}
+
+.banner-with-text__content[data-valign="top"] { justify-content: flex-start; }
+.banner-with-text__content[data-valign="middle"] { justify-content: center; }
+.banner-with-text__content[data-valign="bottom"] { justify-content: flex-end; }
+
+.banner-with-text__content[data-position="left"] { align-items: flex-start; text-align: left; }
+.banner-with-text__content[data-position="center"] { align-items: center; text-align: center; }
+.banner-with-text__content[data-position="right"] { align-items: flex-end; text-align: right; }
+
+.banner-with-text__content > * {
+  max-width: var(--content-max-width, 480px);
+}
+
+/* Content position on small screens only matters in full-width mode; in
+   boxed mode content always follows normal flow below the image. */
+@media (max-width: 749px) {
+  .banner-with-text[data-content-width="full_width"] .banner-with-text__content[data-mobile-position="top"] {
+    justify-content: flex-start;
+  }
+  .banner-with-text[data-content-width="full_width"] .banner-with-text__content[data-mobile-position="center"] {
+    justify-content: center;
+  }
+  .banner-with-text[data-content-width="full_width"] .banner-with-text__content[data-mobile-position="bottom"] {
+    justify-content: flex-end;
+  }
+  .banner-with-text[data-content-width="boxed"] .banner-with-text__content {
+    align-items: center;
+    text-align: center;
+  }
+  .banner-with-text[data-content-width="boxed"] .banner-with-text__content > * {
+    max-width: 100%;
+  }
+}
+
+/* ==========================================================================
+   Reusable content blocks
+   (also usable standalone in other sections via theme blocks)
+   ========================================================================== */
+
+.subheading-block {
+  margin: 0 0 12px;
+  font-family: var(--subheading-font-family, inherit);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--subheading-color, inherit);
+}
+
+.heading-block {
+  font-family: var(--heading-font-family, inherit);
+  font-style: var(--heading-font-style, normal);
+  font-weight: var(--heading-font-weight, 700);
+  font-size: var(--heading-block-size, 40px);
+  line-height: 1.15;
+  color: var(--heading-color, inherit);
+  margin: 0 0 16px;
+}
+
+.text-block {
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--text-color, inherit);
+  margin-bottom: 28px;
+}
+.text-block > :first-child { margin-top: 0; }
+.text-block > :last-child { margin-bottom: 0; }
+
+.button-block {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 24px;
+  background: var(--button-bg, #1a1a1a);
+  color: var(--button-text-color, #fff);
+  border-radius: var(--button-radius, 4px);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: 0.02em;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+.button-block:hover {
+  transform: translateY(-1px);
+  opacity: 0.92;
+}
+.button-block:focus-visible {
+  outline: 2px solid var(--heading-color, currentColor);
+  outline-offset: 2px;
+}
+
+.banner-with-text--outline-buttons .button-block {
+  background: transparent;
+  border: 1.5px solid var(--button-bg, currentColor);
+  color: var(--button-bg, inherit);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .button-block {
+    transition: opacity 0.2s ease;
+  }
+  .button-block:hover {
+    transform: none;
+  }
+}

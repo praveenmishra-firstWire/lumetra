@@ -1,0 +1,45 @@
+{%- comment -%}
+  Renders the heading/text/button content for one slideshow slide.
+  Expects: block
+{%- endcomment -%}
+
+<div
+  class="slideshow__content"
+  data-position="{{ block.settings.content_position }}"
+  style="--slide-text-color: {{ block.settings.text_color }};"
+>
+  {%- if block.settings.eyebrow != blank -%}
+    <p class="slideshow__eyebrow">{{ block.settings.eyebrow }}</p>
+  {%- endif -%}
+
+  {%- if block.settings.heading != blank -%}
+    <h2 class="slideshow__heading">{{ block.settings.heading }}</h2>
+  {%- endif -%}
+
+  {%- if block.settings.text != blank -%}
+    <div class="slideshow__text">{{ block.settings.text }}</div>
+  {%- endif -%}
+
+  {%- if block.settings.button_1_label != blank or block.settings.button_2_label != blank -%}
+    <div class="slideshow__buttons">
+      {%- if block.settings.button_1_label != blank -%}
+        <a
+          {% if block.settings.button_1_link != blank %}href="{{ block.settings.button_1_link }}"{% else %}role="link" aria-disabled="true"{% endif %}
+          class="slideshow__btn slideshow__btn--solid"
+          tabindex="-1"
+        >
+          {{ block.settings.button_1_label }}
+        </a>
+      {%- endif -%}
+      {%- if block.settings.button_2_label != blank -%}
+        <a
+          {% if block.settings.button_2_link != blank %}href="{{ block.settings.button_2_link }}"{% else %}role="link" aria-disabled="true"{% endif %}
+          class="slideshow__btn slideshow__btn--outline"
+          tabindex="-1"
+        >
+          {{ block.settings.button_2_label }}
+        </a>
+      {%- endif -%}
+    </div>
+  {%- endif -%}
+</div>
