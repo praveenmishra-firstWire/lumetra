@@ -116,7 +116,17 @@
     <div class="image-banner__box{% if section.settings.show_border %} image-banner__box--bordered{% endif %}">
       {%- if section.settings.show_close_button -%}
         <button type="button" class="image-banner__close" aria-label="Dismiss" data-dismiss-banner>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="16" height="16" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            width="16"
+            height="16"
+            aria-hidden="true"
+          >
+            <path d="M6 6l12 12M18 6 6 18"/>
+          </svg>
         </button>
       {%- endif -%}
 
@@ -138,7 +148,9 @@
             <a
               href="{{ section.settings.primary_button_link | default: '#' }}"
               class="image-banner__btn image-banner__btn--primary{% if section.settings.primary_button_style == 'outline' %} image-banner__btn--outline{% endif %}"
-              {% if section.settings.primary_button_link == blank %}role="link" aria-disabled="true"{% endif %}
+              {% if section.settings.primary_button_link == blank %}
+                role="link" aria-disabled="true"
+              {% endif %}
             >
               {{ section.settings.primary_button_label }}
             </a>
@@ -147,7 +159,9 @@
             <a
               href="{{ section.settings.secondary_button_link | default: '#' }}"
               class="image-banner__btn image-banner__btn--secondary{% if section.settings.secondary_button_style == 'outline' %} image-banner__btn--outline{% endif %}"
-              {% if section.settings.secondary_button_link == blank %}role="link" aria-disabled="true"{% endif %}
+              {% if section.settings.secondary_button_link == blank %}
+                role="link" aria-disabled="true"
+              {% endif %}
             >
               {{ section.settings.secondary_button_label }}
             </a>
@@ -696,7 +710,8 @@
   ],
   "presets": [
     {
-      "name": "Image banner"
+      "name": "Image banner",
+      "category": "Images"
     }
   ]
 }

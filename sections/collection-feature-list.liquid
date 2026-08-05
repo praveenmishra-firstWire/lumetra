@@ -1,0 +1,442 @@
+{{ 'collection-feature-list.css' | asset_url | stylesheet_tag }}
+
+{%- liquid
+  assign justify_content = 'center'
+  if section.settings.align == 'left'
+    assign justify_content = 'flex-start'
+  elsif section.settings.align == 'right'
+    assign justify_content = 'flex-end'
+  endif
+-%}
+
+{%- style -%}
+  #cf-{{ section.id }} {
+    --cf-bg:           {{ section.settings.section_bg }};
+    --cf-text:         {{ section.settings.text_color }};
+    --cf-text-hover:   {{ section.settings.text_hover_color }};
+    --cf-eyebrow:      {{ section.settings.eyebrow_color }};
+    --cf-line:         {{ section.settings.divider_color }};
+    --cf-font-size-desk: {{ section.settings.font_size_desktop }}px;
+    --cf-font-size-mob:  {{ section.settings.font_size_mobile }}px;
+    --cf-lh:           {{ section.settings.line_height }};
+    --cf-img-size:     calc(var(--cf-font-size-desk) * var(--cf-lh));
+    --cf-slide-dist:   {{ section.settings.slide_distance }}px;
+    --cf-ease:         cubic-bezier(0.22, 1, 0.36, 1);
+    --cf-dur:          {{ section.settings.transition_duration }}ms;
+    --cf-padding-top:    {{ section.settings.padding_top }}px;
+    --cf-padding-bottom: {{ section.settings.padding_bottom }}px;
+    --cf-max-width:    {% if section.settings.full_width %}100%{% else %}{{ section.settings.max_width }}px{% endif %};
+    --cf-align:        {{ section.settings.align }};
+    --cf-justify:      {{ justify_content }};
+    --cf-eyebrow-gap:  {{ section.settings.eyebrow_gap }}px;
+    --cf-item-padding: {{ section.settings.item_padding }}px;
+    --cf-font-weight:  {{ section.settings.font_weight }};
+    --cf-letter-spacing-raw: {{ section.settings.letter_spacing }};
+    --cf-underline-thickness: {{ section.settings.underline_thickness }}px;
+    --cf-img-placeholder-bg: {{ section.settings.img_placeholder_bg }};
+  }
+{%- endstyle -%}
+
+<div
+  id="cf-{{ section.id }}"
+  class="cf-section"
+  data-section-id="{{ section.id }}"
+  data-show-dividers="{{ section.settings.show_dividers }}"
+  data-animate-divider="{{ section.settings.animate_divider }}"
+  data-show-underline="{{ section.settings.show_underline }}"
+  data-show-arrow="{{ section.settings.show_arrow }}"
+  data-show-numbers="{{ section.settings.show_numbers }}"
+>
+  <div class="cf-outer">
+    {%- if section.settings.eyebrow != blank -%}
+      <p class="cf-eyebrow">{{ section.settings.eyebrow }}</p>
+    {%- endif -%}
+
+    <ul class="cf-list" role="list">
+      {%- for block in section.blocks -%}
+        {%- assign col = block.settings.collection -%}
+        {%- liquid
+          if block.settings.custom_label != blank
+            assign label = block.settings.custom_label
+          elsif col != blank
+            assign label = col.title
+          else
+            assign label = 'Collection ' | append: forloop.index
+          endif
+
+          if block.settings.image != blank
+            assign img = block.settings.image
+          elsif col != blank and col.image != blank
+            assign img = col.image
+          elsif col != blank and col.products.first != blank and col.products.first.featured_media != blank
+            assign img = col.products.first.featured_media
+          else
+            assign img = null
+          endif
+
+          if col != blank
+            assign href = col.url
+          elsif block.settings.custom_url != blank
+            assign href = block.settings.custom_url
+          else
+            assign href = '#'
+          endif
+        -%}
+
+        <li class="cf-item" data-block-id="{{ block.id }}" {{ block.shopify_attributes }}>
+          <a
+            class="cf-link"
+            href="{{ href }}"
+            aria-label="{{ label | escape }}"
+          >
+            {% if section.settings.show_numbers %}
+              <span class="cf-num">{{ forloop.index | prepend: '0' | slice: -2, 2 }}</span>
+            {% endif %}
+
+            <h2 class="cf-text">{{ label }}</h2>
+
+            {% if section.settings.show_arrow %}
+              <span class="cf-arrow" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <line x1="5" y1="12" x2="19" y2="12"/>
+                  <polyline points="13 6 19 12 13 18"/>
+                </svg>
+              </span>
+            {% endif %}
+
+            <div class="cf-img-wrap" aria-hidden="true">
+              {%- if img != blank -%}
+                {{
+                  img
+                  | image_url: width: 400
+                  | image_tag: loading: 'lazy', alt: label, widths: '100, 150, 200, 300, 400', sizes: '120px'
+                }}
+              {%- else -%}
+                {{ 'product-1' | placeholder_svg_tag }}
+              {%- endif -%}
+            </div>
+          </a>
+        </li>
+
+      {%- else -%}
+        {%- comment -%} Editor placeholder when no blocks added {%- endcomment -%}
+        {%- for i in (1..4) -%}
+          <li class="cf-item">
+            <span class="cf-link" style="justify-content:center;">
+              <span class="cf-text" style="opacity:0.25;">Collection Name</span>
+            </span>
+          </li>
+        {%- endfor -%}
+      {%- endfor -%}
+    </ul>
+  </div>
+</div>
+
+<script src="{{ 'collection-feature-list.js' | asset_url }}" defer="defer"></script>
+
+{% schema %}
+{
+  "name": "Collection Feature List",
+  "tag": "section",
+  "class": "cf-section-wrapper-fw",
+  "disabled_on": { "groups": ["header", "footer"] },
+  "settings": [
+    {
+      "type": "header",
+      "content": "Eyebrow"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow text",
+      "default": "Popular Collections"
+    },
+    {
+      "type": "range",
+      "id": "eyebrow_gap",
+      "label": "Gap below eyebrow (px)",
+      "min": 4,
+      "max": 60,
+      "step": 4,
+      "default": 16
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "range",
+      "id": "font_size_desktop",
+      "label": "Font size — desktop (px)",
+      "min": 24,
+      "max": 120,
+      "step": 2,
+      "default": 72
+    },
+    {
+      "type": "range",
+      "id": "font_size_mobile",
+      "label": "Font size — mobile (px)",
+      "min": 24,
+      "max": 80,
+      "step": 2,
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "line_height",
+      "label": "Line height",
+      "min": 0.8,
+      "max": 2.0,
+      "step": 0.1,
+      "default": 1.2
+    },
+    {
+      "type": "select",
+      "id": "font_weight",
+      "label": "Font weight",
+      "options": [
+        { "value": "300", "label": "Light" },
+        { "value": "400", "label": "Regular" },
+        { "value": "500", "label": "Medium" },
+        { "value": "600", "label": "Semibold" },
+        { "value": "700", "label": "Bold" }
+      ],
+      "default": "400"
+    },
+    {
+      "type": "select",
+      "id": "font_style",
+      "label": "Font family override",
+      "options": [
+        { "value": "inherit", "label": "Theme default" },
+        { "value": "serif", "label": "Serif" },
+        { "value": "mono", "label": "Monospace" }
+      ],
+      "default": "serif"
+    },
+    {
+      "type": "range",
+      "id": "letter_spacing",
+      "label": "Letter spacing (1 = 0.01em, 0 = normal)",
+      "min": 0,
+      "max": 20,
+      "step": 1,
+      "default": 0
+    },
+    {
+      "type": "header",
+      "content": "Hover animation"
+    },
+    {
+      "type": "range",
+      "id": "slide_distance",
+      "label": "Text slide distance on hover (px)",
+      "min": 0,
+      "max": 60,
+      "step": 2,
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "transition_duration",
+      "label": "Transition duration (ms)",
+      "min": 100,
+      "max": 800,
+      "step": 50,
+      "default": 350
+    },
+    {
+      "type": "checkbox",
+      "id": "show_underline",
+      "label": "Animate underline on hover",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "underline_thickness",
+      "label": "Underline thickness (px)",
+      "min": 1,
+      "max": 6,
+      "step": 1,
+      "default": 2
+    },
+    {
+      "type": "header",
+      "content": "Image circle"
+    },
+    {
+      "type": "color",
+      "id": "img_placeholder_bg",
+      "label": "Image placeholder background",
+      "default": "#e8e4df"
+    },
+    {
+      "type": "header",
+      "content": "Extras"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_numbers",
+      "label": "Show item numbers",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_arrow",
+      "label": "Show arrow on hover",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Dividers"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_dividers",
+      "label": "Show divider lines",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "animate_divider",
+      "label": "Animate divider on hover",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Alignment & layout"
+    },
+    {
+      "type": "select",
+      "id": "align",
+      "label": "Text alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "checkbox",
+      "id": "full_width",
+      "label": "Full width",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "max_width",
+      "label": "Max width (px)",
+      "min": 400,
+      "max": 1600,
+      "step": 100,
+      "default": 900
+    },
+    {
+      "type": "range",
+      "id": "item_padding",
+      "label": "Item vertical padding (px)",
+      "min": 4,
+      "max": 40,
+      "step": 2,
+      "default": 12
+    },
+    {
+      "type": "header",
+      "content": "Colours"
+    },
+    {
+      "type": "color",
+      "id": "section_bg",
+      "label": "Section background",
+      "default": "#faf9f7"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text colour (default)",
+      "default": "#1a1a1a"
+    },
+    {
+      "type": "color",
+      "id": "text_hover_color",
+      "label": "Text colour (hover)",
+      "default": "#1a1a1a"
+    },
+    {
+      "type": "color",
+      "id": "eyebrow_color",
+      "label": "Eyebrow colour",
+      "default": "#1a1a1a"
+    },
+    {
+      "type": "color",
+      "id": "divider_color",
+      "label": "Divider colour",
+      "default": "#d8d3cc"
+    },
+    {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Padding top (px)",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Padding bottom (px)",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "default": 80
+    }
+  ],
+  "blocks": [
+    {
+      "type": "item",
+      "name": "Collection item",
+      "limit": 12,
+      "settings": [
+        {
+          "type": "collection",
+          "id": "collection",
+          "label": "Collection"
+        },
+        {
+          "type": "text",
+          "id": "custom_label",
+          "label": "Custom label",
+          "info": "Overrides collection title."
+        },
+        {
+          "type": "url",
+          "id": "custom_url",
+          "label": "Custom URL",
+          "info": "Used only when no collection is selected."
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image",
+          "info": "Overrides collection image. Shown in circle on hover."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Collection Feature List",
+      "blocks": [{ "type": "item" }, { "type": "item" }, { "type": "item" }, { "type": "item" }],
+      "category": "Collections"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,175 @@
+{{ 'logo-slider.css' | asset_url | stylesheet_tag }}
+
+{% liquid
+  assign section_id = section.id
+%}
+
+{%- style -%}
+  .logo-slider-{{ section_id }} {
+    --logo-padding-top: {{ section.settings.padding_top }}px;
+    --logo-padding-bottom: {{ section.settings.padding_bottom }}px;
+    --logo-bg: {{ section.settings.background }};
+    --logo-gap: {{ section.settings.gap }}px;
+    --logo-half-gap: {{ section.settings.gap | divided_by: 2 }}px;
+    --logo-speed: {{ section.settings.speed }}s;
+    --logo-height: {{ section.settings.logo_height }}px;
+    --logo-mobile-gap: {{ section.settings.mobile_gap }}px;
+    --logo-mobile-height: {{ section.settings.mobile_logo_height }}px;
+  }
+{%- endstyle -%}
+
+<div
+  class="logo-slider-{{ section_id }} logo-slider"
+  data-fade-edges="{{ section.settings.fade_edges }}"
+  data-pause-hover="{{ section.settings.pause_hover }}"
+>
+  <div class="logo-slider__track" id="logo-track-{{ section_id }}">
+    {% for i in (1..2) %}
+      {% for block in section.blocks %}
+        <div class="logo-slider__item" {{ block.shopify_attributes }}>
+          {% if block.settings.link != blank %}
+            <a href="{{ block.settings.link }}">
+          {% endif %}
+
+          {% if block.settings.image %}
+            {{ block.settings.image | image_url: width: 400 | image_tag: loading: 'lazy', alt: block.settings.alt }}
+          {% endif %}
+
+          {% if block.settings.link != blank %}
+            </a>
+          {% endif %}
+        </div>
+      {% endfor %}
+    {% endfor %}
+  </div>
+</div>
+
+<script src="{{ 'mylogo-slider.js' | asset_url }}" defer="defer"></script>
+
+{% schema %}
+{
+  "name": "Logo Slider",
+  "tag": "section",
+  "class": "section-logo-slider",
+  "settings": [
+    {
+      "type": "color",
+      "id": "background",
+      "label": "Background",
+      "default": "#F4F9FF"
+    },
+    {
+      "type": "range",
+      "id": "speed",
+      "label": "Animation Speed (seconds)",
+      "min": 10,
+      "max": 80,
+      "step": 2,
+      "default": 30
+    },
+    {
+      "type": "range",
+      "id": "logo_height",
+      "label": "Desktop Logo Height",
+      "min": 30,
+      "max": 120,
+      "step": 2,
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "mobile_logo_height",
+      "label": "Mobile Logo Height",
+      "min": 20,
+      "max": 80,
+      "step": 2,
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "gap",
+      "label": "Desktop Gap",
+      "min": 10,
+      "max": 120,
+      "step": 2,
+      "default": 64
+    },
+    {
+      "type": "range",
+      "id": "mobile_gap",
+      "label": "Mobile Gap",
+      "min": 10,
+      "max": 80,
+      "step": 2,
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Padding Top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Padding Bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "default": 32
+    },
+    {
+      "type": "checkbox",
+      "id": "pause_hover",
+      "label": "Pause on Hover",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "fade_edges",
+      "label": "Fade Edges",
+      "default": true
+    }
+  ],
+  "blocks": [
+    {
+      "type": "logo",
+      "name": "Logo",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Logo"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link"
+        },
+        {
+          "type": "text",
+          "id": "alt",
+          "label": "Alt Text"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Logo Slider",
+      "category": "Logo List",
+      "blocks": [
+        { "type": "logo" },
+        { "type": "logo" },
+        { "type": "logo" },
+        { "type": "logo" },
+        { "type": "logo" },
+        { "type": "logo" }
+      ]
+    }
+  ]
+}
+{% endschema %}

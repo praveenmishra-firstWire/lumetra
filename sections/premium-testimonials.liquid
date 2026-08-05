@@ -1,0 +1,410 @@
+{%- comment -%}
+  Premium Slider Testimonials — CSS/JS live in separate asset files now;
+  only the per-instance custom-property values and the SVG-clipPath
+  reference (which must stay unique per section instance) remain inline.
+  Avatar strip with a scaled "coverflow" effect; arrows and clicking an
+  avatar both drive a crossfading quote panel below. Built for Alpine
+  theme.
+{%- endcomment -%}
+
+{{ 'premium-testimonials.css' | asset_url | stylesheet_tag }}
+
+{%- style -%}
+  .pt-wrap {
+    --section-padding-top: {{ section.settings.padding_top }}px;
+    --section-padding-bottom: {{ section.settings.padding_bottom }}px;
+    --pt-color-highlight: {{ section.settings.colors_highlight.red }}, {{ section.settings.colors_highlight.green }}, {{ section.settings.colors_highlight.blue }};
+    --pt-color-rating: {{ section.settings.star_color.red }}, {{ section.settings.star_color.green }}, {{ section.settings.star_color.blue }};
+    --pt-font-heading: var(--font-heading-family, inherit);
+    --pt-font-body: var(--font-body-family, inherit);
+    padding-top: var(--section-padding-top);
+    padding-bottom: var(--section-padding-bottom);
+  }
+
+  #PremiumTestimonials-{{ section.id }} .pt-avatar-media {
+    -webkit-clip-path: url(#pt-squircle-{{ section.id }});
+    clip-path: url(#pt-squircle-{{ section.id }});
+  }
+
+  {%- if section.settings.background_image != blank -%}
+    .pt-wrap {
+      background-image: url('{{ section.settings.background_image | image_url: width: 1920 }}');
+    }
+  {%- endif -%}
+{%- endstyle -%}
+
+<div
+  class="pt-wrap{% if section.settings.show_divider %} pt-divider{% endif %}"
+  data-hide-images="{{ section.settings.hide_images }}"
+>
+  <div class="pt-page-width">
+    <div class="pt-title-wrapper{% if section.settings.heading == blank %} pt-no-heading{% endif %} pt-{{ section.settings.heading_alignment }}">
+      <{{ section.settings.heading_tag }} class="pt-title {{ section.settings.heading_size }}">
+        {%- if section.settings.enable_highlight -%}
+          <span class="pt-highlight-{{ section.settings.highlight_style }}">{{ section.settings.heading }}</span>
+        {%- else -%}
+          {{ section.settings.heading }}
+        {%- endif -%}
+      </{{ section.settings.heading_tag }}>
+    </div>
+
+    {%- assign block_count = section.blocks.size -%}
+    {%- if block_count > 0 -%}
+      <svg class="visually-hidden" style="position:absolute;width:0;height:0;overflow:hidden;">
+        <defs>
+          <clipPath id="pt-squircle-{{ section.id }}" clipPathUnits="objectBoundingBox">
+            <path d="M0.11,0.09 C0.014,0.174,-0.003,0.398,0,0.499 C-0.003,0.618,0.015,0.849,0.125,0.919 C0.235,0.989,0.413,0.997,0.504,0.999 C0.604,0.999,0.719,0.999,0.869,0.924 C0.974,0.849,0.994,0.704,0.999,0.499 C1,0.295,0.984,0.155,0.879,0.075 C0.796,0.011,0.593,-0.003,0.504,0 C0.413,-0.005,0.206,0.006,0.11,0.09"></path>
+          </clipPath>
+        </defs>
+      </svg>
+
+      <premium-testimonials
+        id="PremiumTestimonials-{{ section.id }}"
+        class="pt-slider"
+        data-autorotate="{{ section.settings.autorotate }}"
+        data-autorotate-speed="{{ section.settings.autorotate_speed | times: 1000 }}"
+        data-count="{{ block_count }}"
+      >
+        <div class="pt-slider-row">
+          {%- if block_count > 1 -%}
+            <button
+              type="button"
+              class="pt-arrow pt-arrow--prev"
+              data-pt-prev
+              aria-label="{{ 'Previous testimonial' }}"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+              </svg>
+            </button>
+          {%- endif -%}
+
+          <div class="pt-track-wrapper">
+            <div class="pt-track">
+              {%- if block_count > 1 -%}
+                {%- for copy in (1..3) -%}
+                  {%- for block in section.blocks -%}
+                    <button
+                      type="button"
+                      class="pt-avatar"
+                      data-logical-index="{{ forloop.index0 }}"
+                      aria-label="{{ 'Show testimonial' }} {{ forloop.index }}"
+                      {% if forloop.parentloop.first %}
+                        {{- block.shopify_attributes -}}
+                      {% endif %}
+                    >
+                      <span class="pt-avatar-media">
+                        {%- if block.settings.image != blank -%}
+                          {{
+                            block.settings.image
+                            | image_url: width: 200
+                            | image_tag: loading: 'lazy', widths: '100, 150, 200', alt: block.settings.image.alt
+                            | escape
+                          }}
+                        {%- else -%}
+                          {{ 'image' | placeholder_svg_tag }}
+                        {%- endif -%}
+                      </span>
+                    </button>
+                  {%- endfor -%}
+                {%- endfor -%}
+              {%- else -%}
+                {%- for block in section.blocks -%}
+                  <button
+                    type="button"
+                    class="pt-avatar is-selected"
+                    data-logical-index="{{ forloop.index0 }}"
+                    aria-label="{{ 'Show testimonial' }} {{ forloop.index }}"
+                    {{ block.shopify_attributes }}
+                  >
+                    <span class="pt-avatar-media">
+                      {%- if block.settings.image != blank -%}
+                        {{
+                          block.settings.image
+                          | image_url: width: 200
+                          | image_tag: loading: 'lazy', widths: '100, 150, 200', alt: block.settings.image.alt
+                          | escape
+                        }}
+                      {%- else -%}
+                        {{ 'image' | placeholder_svg_tag }}
+                      {%- endif -%}
+                    </span>
+                  </button>
+                {%- endfor -%}
+              {%- endif -%}
+            </div>
+          </div>
+
+          {%- if block_count > 1 -%}
+            <button type="button" class="pt-arrow pt-arrow--next" data-pt-next aria-label="{{ 'Next testimonial' }}">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M5 12h14M12 5l7 7-7 7"/>
+              </svg>
+            </button>
+          {%- endif -%}
+        </div>
+
+        <div class="pt-content-wrap">
+          {%- for block in section.blocks -%}
+            <div class="pt-content{% if forloop.first %} is-active{% endif %}" data-index="{{ forloop.index0 }}">
+              {%- if block.settings.icon != 'none' -%}
+                {%- if block.settings.icon == 'quote' -%}
+                  <div class="pt-quote-icon">
+                    <svg viewBox="0 0 41 35" fill="currentColor" aria-hidden="true">
+                      <path d="M10.208 17.711h6.124v16.332H0V21.684C0 8.184 5.444.956 16.332 0v6.125c-4.083 1.14-6.124 4.414-6.124 9.82v1.766zm24.498 0h6.124v16.332H24.498V21.684C24.498 8.184 29.942.956 40.83 0v6.125c-4.083 1.14-6.124 4.414-6.124 9.82v1.766z"/>
+                    </svg>
+                  </div>
+                {%- else -%}
+                  <div class="rating" role="img" aria-label="{{ block.settings.icon }} out of 5 stars">
+                    <span aria-hidden="true" class="rating-star" style="--rating: {{ block.settings.icon }};"></span>
+                  </div>
+                {%- endif -%}
+              {%- endif -%}
+
+              {%- if block.settings.text != blank -%}
+                <div class="pt-text">
+                  {%- if block.settings.enable_highlight -%}
+                    <span class="pt-highlight-{{ block.settings.highlight_style }}">{{ block.settings.text }}</span>
+                  {%- else -%}
+                    {{ block.settings.text }}
+                  {%- endif -%}
+                </div>
+              {%- endif -%}
+
+              {%- if block.settings.author != blank -%}
+                <cite class="pt-author">{{ block.settings.author }}</cite>
+              {%- endif -%}
+            </div>
+          {%- endfor -%}
+        </div>
+      </premium-testimonials>
+    {%- endif -%}
+  </div>
+</div>
+
+<script src="{{ 'testimonials.js' | asset_url }}" defer="defer"></script>
+
+{% schema %}
+{
+  "name": "Premium testimonials",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "autorotate",
+      "label": "Auto-rotate testimonials",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "autorotate_speed",
+      "label": "Auto-rotate speed",
+      "min": 3,
+      "max": 9,
+      "step": 2,
+      "unit": "s",
+      "default": 5
+    },
+    {
+      "type": "checkbox",
+      "id": "hide_images",
+      "label": "Hide avatar strip",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_divider",
+      "label": "Show section divider",
+      "default": false
+    },
+    { "type": "header", "content": "Background" },
+    {
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Background image",
+      "info": "Optional. If left blank, the section uses a plain background instead."
+    },
+    { "type": "header", "content": "Heading" },
+    {
+      "type": "inline_richtext",
+      "id": "heading",
+      "label": "Heading",
+      "default": "What People Are Saying"
+    },
+    {
+      "type": "select",
+      "id": "heading_size",
+      "label": "Heading size",
+      "options": [
+        { "value": "h2", "label": "Small" },
+        { "value": "h1", "label": "Medium" },
+        { "value": "h0", "label": "Large" }
+      ],
+      "default": "h1"
+    },
+    {
+      "type": "select",
+      "id": "heading_alignment",
+      "label": "Heading alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "select",
+      "id": "heading_tag",
+      "label": "Heading HTML tag",
+      "options": [
+        { "value": "h1", "label": "H1" },
+        { "value": "h2", "label": "H2" },
+        { "value": "h3", "label": "H3" },
+        { "value": "div", "label": "Div (not a heading)" }
+      ],
+      "default": "h2"
+    },
+    { "type": "header", "content": "Colors" },
+    {
+      "type": "color",
+      "id": "colors_highlight",
+      "label": "Highlight color",
+      "default": "#ffb503"
+    },
+    {
+      "type": "color",
+      "id": "star_color",
+      "label": "Star rating color",
+      "default": "#f0a500"
+    },
+    { "type": "header", "content": "Padding" },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Top padding",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Bottom padding",
+      "default": 48
+    },
+    { "type": "header", "content": "Highlight" },
+    {
+      "type": "checkbox",
+      "id": "enable_highlight",
+      "label": "Highlight heading",
+      "default": false
+    },
+    {
+      "type": "select",
+      "id": "highlight_style",
+      "label": "Highlight style",
+      "options": [
+        { "value": "marker", "label": "Marker" },
+        { "value": "underline", "label": "Underline" },
+        { "value": "bold-underline", "label": "Bold underline" },
+        { "value": "solid-color", "label": "Solid color" }
+      ],
+      "default": "marker"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "testimonial",
+      "name": "Testimonial",
+      "settings": [
+        {
+          "type": "select",
+          "id": "icon",
+          "label": "Icon",
+          "options": [
+            { "value": "none", "label": "None" },
+            { "value": "quote", "label": "Quotation mark" },
+            { "value": "5", "label": "5 stars" },
+            { "value": "4", "label": "4 stars" },
+            { "value": "3", "label": "3 stars" },
+            { "value": "2", "label": "2 stars" },
+            { "value": "1", "label": "1 star" }
+          ],
+          "default": "5"
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Testimonial text",
+          "default": "<p>Add customer reviews and testimonials to showcase your store's happy customers.</p>"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Avatar image"
+        },
+        {
+          "type": "inline_richtext",
+          "id": "author",
+          "label": "Author",
+          "default": "Author"
+        },
+        { "type": "header", "content": "Highlight" },
+        {
+          "type": "checkbox",
+          "id": "enable_highlight",
+          "label": "Highlight testimonial text",
+          "default": false
+        },
+        {
+          "type": "select",
+          "id": "highlight_style",
+          "label": "Highlight style",
+          "options": [
+            { "value": "marker", "label": "Marker" },
+            { "value": "underline", "label": "Underline" },
+            { "value": "bold-underline", "label": "Bold underline" },
+            { "value": "solid-color", "label": "Solid color" }
+          ],
+          "default": "marker"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Premium testimonials",
+      "category": "Text",
+      "blocks": [
+        { "type": "testimonial" },
+        { "type": "testimonial" },
+        { "type": "testimonial" },
+        { "type": "testimonial" },
+        { "type": "testimonial" }
+      ]
+    }
+  ]
+}
+{% endschema %}

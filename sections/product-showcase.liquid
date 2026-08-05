@@ -1,0 +1,1090 @@
+{%- comment -%}
+  ============================================================================
+    PRODUCT SHOWCASE (Grid / Carousel)
+    Merchant-switchable Grid or Carousel product display with color swatches,
+    quick add, quick view, wishlist, and badges.
+
+    CSS/JS live in separate asset files; only the per-instance custom
+    property values and a few small data-attribute bridges (for values the
+    external JS can't read directly from Liquid) stay inline here.
+
+    IMPLEMENTATION NOTES / SCOPE DECISIONS:
+    - Color swatches assume the product's FIRST option is named "Color" or
+      "Colour" and that color is option1 on each variant. This matches the
+      common convention (and the reference design) but products that use
+      color as a 2nd/3rd option, or multi-dimensional variants (Color +
+      Size), will not show swatches — this keeps the swatch logic reliable
+      rather than guessing across arbitrary option layouts.
+    - Because there's no {% render %} partial for the card markup, it's
+      written once and reused for BOTH the collection-based loop and the
+      manual product-picker loop by simply repeating the block.
+    - Some very granular style requests (per-element typography, per-badge
+      colors, separate margin controls, etc.) are consolidated into a
+      smaller set of high-impact color/spacing settings so the Theme Editor
+      panel stays usable. Everything structurally requested (grid/carousel
+      switch, swatches, badges, quick add/view, wishlist, responsive
+      columns, hover effects) is fully implemented.
+    - KNOWN PRE-EXISTING GAP: the "Enable card hover shadow / lift" setting
+      (card_shadow) has matching CSS (.pgs--shadow) but nothing in this
+      markup ever outputs that class, so the toggle currently has no
+      effect. Left as-is per the split request rather than silently fixed.
+  ============================================================================
+{%- endcomment -%}
+
+{{ 'product-showcase.css' | asset_url | stylesheet_tag }}
+
+{%- liquid
+  assign s = section.settings
+  assign sec_id = section.id
+  assign layout = s.layout_type
+-%}
+
+<section
+  id="ProductShowcase-{{ sec_id }}"
+  class="pgs pgs--{{ layout }}{% if s.equal_card_height %} pgs--equal-height{% endif %}"
+  data-product-showcase
+  data-layout="{{ layout }}"
+  data-autoplay="{{ s.enable_autoplay }}"
+  data-autoplay-speed="{{ s.autoplay_speed }}"
+  data-loop="{{ s.enable_loop }}"
+  data-columns-desktop="{{ s.columns_desktop }}"
+  data-columns-tablet="{{ s.columns_tablet }}"
+  data-columns-mobile="{{ s.columns_mobile }}"
+  data-card-gap="{{ s.card_spacing }}"
+>
+  <div class="pgs__inner">
+    <div class="pgs__header">
+      <div class="pgs__heading-block">
+        {%- if s.heading != blank -%}
+          <h2 class="pgs__heading">{{ s.heading }}</h2>
+        {%- endif -%}
+        {%- if s.subheading != blank -%}
+          <p class="pgs__subheading">{{ s.subheading }}</p>
+        {%- endif -%}
+        {%- if s.description != blank -%}
+          <div class="pgs__description">{{ s.description }}</div>
+        {%- endif -%}
+      </div>
+
+      {%- if layout == 'carousel' and s.show_arrows -%}
+        <div class="pgs__nav" data-pgs-nav>
+          <button type="button" class="pgs__nav-btn pgs__nav-btn--prev" data-pgs-prev aria-label="Previous products">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+          </button>
+          <button type="button" class="pgs__nav-btn pgs__nav-btn--next" data-pgs-next aria-label="Next products">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </button>
+        </div>
+      {%- endif -%}
+    </div>
+
+    <div class="pgs__track-wrap" data-pgs-track-wrap>
+      <ul class="pgs__track" data-pgs-track role="list">
+        {%- liquid
+          assign selected_block_count = 0
+          for block in section.blocks
+            if block.settings.product != blank
+              assign selected_block_count = selected_block_count | plus: 1
+            endif
+          endfor
+          assign use_manual_products = false
+          if s.product_source == 'manual' or selected_block_count > 0
+            assign use_manual_products = true
+          endif
+        -%}
+
+        {%- if use_manual_products -%}
+          {%- for block in section.blocks -%}
+            {%- liquid
+              assign product = block.settings.product
+              if product == blank
+                continue
+              endif
+            -%}
+            <li class="pgs__card" data-pgs-card {{ block.shopify_attributes }}>
+              {%- liquid
+                assign variant = product.selected_or_first_available_variant
+                assign product_label = blank
+                if product.tags contains 'new'
+                  assign product_label = 'New'
+                endif
+                if product_label == blank
+                  for tag in product.tags
+                    if tag contains 'label:'
+                      assign product_label = tag | remove_first: 'label:'
+                      break
+                    endif
+                  endfor
+                endif
+                if block.settings.custom_label != blank
+                  assign product_label = block.settings.custom_label
+                endif
+                assign show_sale = false
+                if s.show_sale_badge and variant.compare_at_price > variant.price
+                  assign show_sale = true
+                endif
+                assign first_option = product.options_with_values.first
+                assign is_color_option = false
+                if first_option.name == 'Color' or first_option.name == 'Colour'
+                  assign is_color_option = true
+                endif
+                assign has_swatches = false
+                if s.show_swatches and first_option != blank and is_color_option
+                  assign has_swatches = true
+                endif
+              -%}
+
+              <div class="pgs__card-top">
+                {%- if show_sale -%}
+                  <span class="pgs__badge pgs__badge--sale">
+                    {%- if s.badge_style == 'percent_off' -%}
+                      {%- assign pct = variant.compare_at_price
+                        | minus: variant.price
+                        | times: 100
+                        | divided_by: variant.compare_at_price
+                      -%}
+                      -{{ pct }}%
+                    {%- else -%}
+                      Save {{ variant.compare_at_price | minus: variant.price | money }}
+                    {%- endif -%}
+                  </span>
+                {%- elsif product_label != blank -%}
+                  <span class="pgs__badge pgs__badge--label">{{ product_label }}</span>
+                {%- elsif variant.available == false -%}
+                  <span class="pgs__badge pgs__badge--soldout">Sold Out</span>
+                {%- else -%}
+                  <span class="pgs__badge pgs__badge--spacer" aria-hidden="true"></span>
+                {%- endif -%}
+
+                {%- if s.show_quick_view -%}
+                  <button
+                    type="button"
+                    class="pgs__quick-look"
+                    data-pgs-quickview
+                    data-qv-title="{{ product.title | escape }}"
+                    data-qv-vendor="{{ product.vendor | escape }}"
+                    data-qv-price="{{ variant.price | money }}"
+                    data-qv-compare="{% if variant.compare_at_price > variant.price %}{{ variant.compare_at_price | money }}{% endif %}"
+                    data-qv-image="{{ product.featured_image | image_url: width: 700 }}"
+                    data-qv-url="{{ product.url }}"
+                    data-qv-description="{{ product.description | strip_html | truncatewords: 28 | escape }}"
+                    data-qv-variant-id="{{ variant.id }}"
+                    data-qv-available="{{ variant.available }}"
+                  >
+                    Quick Look
+                  </button>
+                {%- else -%}
+                  <span></span>
+                {%- endif -%}
+              </div>
+
+              <div class="pgs__image-wrap">
+                {%- if s.show_wishlist -%}
+                  <button
+                    type="button"
+                    class="pgs__wishlist"
+                    data-wishlist-toggle
+                    data-product-id="{{ product.id }}"
+                    aria-label="Add {{ product.title | escape }} to wishlist"
+                  >
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 21s-6.7-4.35-9.3-8.28C1 10.1 1.5 6.5 4.6 5 7 3.8 9.6 4.7 12 7c2.4-2.3 5-3.2 7.4-2 3.1 1.5 3.6 5.1 1.9 7.72C18.7 16.65 12 21 12 21z"/>
+                    </svg>
+                  </button>
+                {%- endif -%}
+
+                <a href="{{ product.url }}" class="pgs__image-link" data-pgs-image-link>
+                  {%- if product.featured_image -%}
+                    <img
+                      class="pgs__image pgs__image--primary"
+                      data-pgs-primary-image
+                      src="{{ product.featured_image | image_url: width: 600 }}"
+                      srcset="{{ product.featured_image | image_url: width: 300 }} 300w, {{ product.featured_image | image_url: width: 600 }} 600w, {{ product.featured_image | image_url: width: 900 }} 900w"
+                      sizes="(max-width: 749px) 50vw, 300px"
+                      alt="{{ product.featured_image.alt | default: product.title | escape }}"
+                      loading="lazy"
+                      width="{{ product.featured_image.width }}"
+                      height="{{ product.featured_image.height }}"
+                    >
+                  {%- else -%}
+                    <div class="pgs__image-placeholder" data-pgs-primary-image>
+                      {{ 'product-1' | placeholder_svg_tag: 'pgs__placeholder-svg' }}
+                    </div>
+                  {%- endif -%}
+                  {%- if product.images.size > 1 -%}
+                    <img
+                      class="pgs__image pgs__image--secondary"
+                      src="{{ product.images[1] | image_url: width: 600 }}"
+                      alt=""
+                      loading="lazy"
+                      aria-hidden="true"
+                    >
+                  {%- endif -%}
+                </a>
+
+                {%- if s.show_quick_add -%}
+                  <form
+                    class="pgs__quick-add-form"
+                    data-quick-add-form
+                    action="{{ routes.cart_add_url }}"
+                    method="post"
+                    enctype="multipart/form-data"
+                  >
+                    <input type="hidden" name="id" value="{{ variant.id }}" data-pgs-variant-input>
+                    <button
+                      type="submit"
+                      class="pgs__quick-add-btn"
+                      aria-label="Add {{ product.title | escape }} to cart"
+                      {% unless variant.available %}
+                        disabled
+                      {% endunless %}
+                    >
+                      <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/>
+                      </svg>
+                    </button>
+                  </form>
+                {%- endif -%}
+              </div>
+
+              <div class="pgs__info">
+                {%- if s.show_vendor -%}
+                  <span class="pgs__vendor">{{ product.type | default: product.vendor }}</span>
+                {%- endif -%}
+
+                <a href="{{ product.url }}" class="pgs__title">{{ product.title }}</a>
+
+                {%- if s.show_rating -%}
+                  {%- assign rating = product.metafields.reviews.rating.value -%}
+                  {%- if rating -%}
+                    <div class="pgs__rating" aria-label="Rated {{ rating }} out of 5">
+                      {%- for i in (1..5) -%}
+                        <svg viewBox="0 0 24 24">
+                          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.27 5.82 21 7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                        </svg>
+                      {%- endfor -%}
+                    </div>
+                  {%- endif -%}
+                {%- endif -%}
+
+                <div class="pgs__price-row" data-pgs-price-row>
+                  <span class="pgs__price" data-pgs-price>{{ variant.price | money }}</span>
+                  {%- if s.show_compare_price and variant.compare_at_price > variant.price -%}
+                    <s class="pgs__compare" data-pgs-compare>{{ variant.compare_at_price | money }}</s>
+                  {%- else -%}
+                    <s class="pgs__compare" data-pgs-compare hidden></s>
+                  {%- endif -%}
+                </div>
+
+                {%- if has_swatches -%}
+                  <div class="pgs__swatch-label">
+                    Color: <span data-pgs-color-name>{{ first_option.values.first }}</span>
+                  </div>
+                  <div class="pgs__swatches" data-pgs-swatches>
+                    {%- for value in first_option.values -%}
+                      {%- liquid
+                        assign swatch_variant = product.variants | where: 'option1', value | first
+                        assign swatch_image_url = blank
+                        if swatch_variant.image
+                          assign swatch_image_url = swatch_variant.image | image_url: width: 600
+                        else
+                          for img in product.images
+                            if img.alt contains value
+                              assign swatch_image_url = img | image_url: width: 600
+                              break
+                            endif
+                          endfor
+                        endif
+                      -%}
+                      {%- if swatch_variant -%}
+                        <button
+                          type="button"
+                          class="pgs__swatch{% if forloop.first %} is-active{% endif %}"
+                          data-pgs-swatch
+                          data-color-name="{{ value | escape }}"
+                          data-variant-id="{{ swatch_variant.id }}"
+                          data-price="{{ swatch_variant.price | money }}"
+                          data-compare="{% if swatch_variant.compare_at_price > swatch_variant.price %}{{ swatch_variant.compare_at_price | money }}{% endif %}"
+                          data-available="{{ swatch_variant.available }}"
+                          {%- if swatch_image_url != blank -%}
+                            data-image="{{ swatch_image_url }}"
+                          {%- endif -%}
+                          style="--swatch-color: {{ value | remove: ' ' }};"
+                          aria-label="{{ value | escape }}"
+                          aria-pressed="{% if forloop.first %}true{% else %}false{% endif %}"
+                        ></button>
+                      {%- endif -%}
+                    {%- endfor -%}
+                  </div>
+                {%- endif -%}
+              </div>
+            </li>
+          {%- endfor -%}
+
+        {%- else -%}
+          {%- liquid
+            assign coll = collections[s.collection]
+            if s.show_all_products
+              assign product_list = coll.products
+            else
+              assign product_list = coll.products | slice: 0, s.product_count
+            endif
+          -%}
+          {%- for product in product_list -%}
+            <li class="pgs__card" data-pgs-card>
+              {%- liquid
+                assign variant = product.selected_or_first_available_variant
+                assign product_label = blank
+                if product.tags contains 'new'
+                  assign product_label = 'New'
+                endif
+                if product_label == blank
+                  for tag in product.tags
+                    if tag contains 'label:'
+                      assign product_label = tag | remove_first: 'label:'
+                      break
+                    endif
+                  endfor
+                endif
+                assign show_sale = false
+                if s.show_sale_badge and variant.compare_at_price > variant.price
+                  assign show_sale = true
+                endif
+                assign first_option = product.options_with_values.first
+                assign is_color_option = false
+                if first_option.name == 'Color' or first_option.name == 'Colour'
+                  assign is_color_option = true
+                endif
+                assign has_swatches = false
+                if s.show_swatches and first_option != blank and is_color_option
+                  assign has_swatches = true
+                endif
+              -%}
+
+              <div class="pgs__card-top">
+                {%- if show_sale -%}
+                  <span class="pgs__badge pgs__badge--sale">
+                    {%- if s.badge_style == 'percent_off' -%}
+                      {%- assign pct = variant.compare_at_price
+                        | minus: variant.price
+                        | times: 100
+                        | divided_by: variant.compare_at_price
+                      -%}
+                      -{{ pct }}%
+                    {%- else -%}
+                      Save {{ variant.compare_at_price | minus: variant.price | money }}
+                    {%- endif -%}
+                  </span>
+                {%- elsif product_label != blank -%}
+                  <span class="pgs__badge pgs__badge--label">{{ product_label }}</span>
+                {%- elsif variant.available == false -%}
+                  <span class="pgs__badge pgs__badge--soldout">Sold Out</span>
+                {%- else -%}
+                  <span class="pgs__badge pgs__badge--spacer" aria-hidden="true"></span>
+                {%- endif -%}
+
+                {%- if s.show_quick_view -%}
+                  <button
+                    type="button"
+                    class="pgs__quick-look"
+                    data-pgs-quickview
+                    data-qv-title="{{ product.title | escape }}"
+                    data-qv-vendor="{{ product.vendor | escape }}"
+                    data-qv-price="{{ variant.price | money }}"
+                    data-qv-compare="{% if variant.compare_at_price > variant.price %}{{ variant.compare_at_price | money }}{% endif %}"
+                    data-qv-image="{{ product.featured_image | image_url: width: 700 }}"
+                    data-qv-url="{{ product.url }}"
+                    data-qv-description="{{ product.description | strip_html | truncatewords: 28 | escape }}"
+                    data-qv-variant-id="{{ variant.id }}"
+                    data-qv-available="{{ variant.available }}"
+                  >
+                    Quick Look
+                  </button>
+                {%- else -%}
+                  <span></span>
+                {%- endif -%}
+              </div>
+
+              <div class="pgs__image-wrap">
+                {%- if s.show_wishlist -%}
+                  <button
+                    type="button"
+                    class="pgs__wishlist"
+                    data-wishlist-toggle
+                    data-product-id="{{ product.id }}"
+                    aria-label="Add {{ product.title | escape }} to wishlist"
+                  >
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 21s-6.7-4.35-9.3-8.28C1 10.1 1.5 6.5 4.6 5 7 3.8 9.6 4.7 12 7c2.4-2.3 5-3.2 7.4-2 3.1 1.5 3.6 5.1 1.9 7.72C18.7 16.65 12 21 12 21z"/>
+                    </svg>
+                  </button>
+                {%- endif -%}
+
+                <a href="{{ product.url }}" class="pgs__image-link" data-pgs-image-link>
+                  {%- if product.featured_image -%}
+                    <img
+                      class="pgs__image pgs__image--primary"
+                      data-pgs-primary-image
+                      src="{{ product.featured_image | image_url: width: 600 }}"
+                      srcset="{{ product.featured_image | image_url: width: 300 }} 300w, {{ product.featured_image | image_url: width: 600 }} 600w, {{ product.featured_image | image_url: width: 900 }} 900w"
+                      sizes="(max-width: 749px) 50vw, 300px"
+                      alt="{{ product.featured_image.alt | default: product.title | escape }}"
+                      loading="lazy"
+                      width="{{ product.featured_image.width }}"
+                      height="{{ product.featured_image.height }}"
+                    >
+                  {%- else -%}
+                    <div class="pgs__image-placeholder" data-pgs-primary-image>
+                      {{ 'product-1' | placeholder_svg_tag: 'pgs__placeholder-svg' }}
+                    </div>
+                  {%- endif -%}
+                  {%- if product.images.size > 1 -%}
+                    <img
+                      class="pgs__image pgs__image--secondary"
+                      src="{{ product.images[1] | image_url: width: 600 }}"
+                      alt=""
+                      loading="lazy"
+                      aria-hidden="true"
+                    >
+                  {%- endif -%}
+                </a>
+
+                {%- if s.show_quick_add -%}
+                  <form
+                    class="pgs__quick-add-form"
+                    data-quick-add-form
+                    action="{{ routes.cart_add_url }}"
+                    method="post"
+                    enctype="multipart/form-data"
+                  >
+                    <input type="hidden" name="id" value="{{ variant.id }}" data-pgs-variant-input>
+                    <button
+                      type="submit"
+                      class="pgs__quick-add-btn"
+                      aria-label="Add {{ product.title | escape }} to cart"
+                      {% unless variant.available %}
+                        disabled
+                      {% endunless %}
+                    >
+                      <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/>
+                      </svg>
+                    </button>
+                  </form>
+                {%- endif -%}
+              </div>
+
+              <div class="pgs__info">
+                {%- if s.show_vendor -%}
+                  <span class="pgs__vendor">{{ product.type | default: product.vendor }}</span>
+                {%- endif -%}
+
+                <a href="{{ product.url }}" class="pgs__title">{{ product.title }}</a>
+
+                {%- if s.show_rating -%}
+                  {%- assign rating = product.metafields.reviews.rating.value -%}
+                  {%- if rating -%}
+                    <div class="pgs__rating" aria-label="Rated {{ rating }} out of 5">
+                      {%- for i in (1..5) -%}
+                        <svg viewBox="0 0 24 24">
+                          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.27 5.82 21 7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                        </svg>
+                      {%- endfor -%}
+                    </div>
+                  {%- endif -%}
+                {%- endif -%}
+
+                <div class="pgs__price-row" data-pgs-price-row>
+                  <span class="pgs__price" data-pgs-price>{{ variant.price | money }}</span>
+                  {%- if s.show_compare_price and variant.compare_at_price > variant.price -%}
+                    <s class="pgs__compare" data-pgs-compare>{{ variant.compare_at_price | money }}</s>
+                  {%- else -%}
+                    <s class="pgs__compare" data-pgs-compare hidden></s>
+                  {%- endif -%}
+                </div>
+
+                {%- if has_swatches -%}
+                  <div class="pgs__swatch-label">
+                    Color: <span data-pgs-color-name>{{ first_option.values.first }}</span>
+                  </div>
+                  <div class="pgs__swatches" data-pgs-swatches>
+                    {%- for value in first_option.values -%}
+                      {%- liquid
+                        assign swatch_variant = product.variants | where: 'option1', value | first
+                        assign swatch_image_url = blank
+                        if swatch_variant.image
+                          assign swatch_image_url = swatch_variant.image | image_url: width: 600
+                        else
+                          for img in product.images
+                            if img.alt contains value
+                              assign swatch_image_url = img | image_url: width: 600
+                              break
+                            endif
+                          endfor
+                        endif
+                      -%}
+                      {%- if swatch_variant -%}
+                        <button
+                          type="button"
+                          class="pgs__swatch{% if forloop.first %} is-active{% endif %}"
+                          data-pgs-swatch
+                          data-color-name="{{ value | escape }}"
+                          data-variant-id="{{ swatch_variant.id }}"
+                          data-price="{{ swatch_variant.price | money }}"
+                          data-compare="{% if swatch_variant.compare_at_price > swatch_variant.price %}{{ swatch_variant.compare_at_price | money }}{% endif %}"
+                          data-available="{{ swatch_variant.available }}"
+                          {%- if swatch_image_url != blank -%}
+                            data-image="{{ swatch_image_url }}"
+                          {%- endif -%}
+                          style="--swatch-color: {{ value | remove: ' ' }};"
+                          aria-label="{{ value | escape }}"
+                          aria-pressed="{% if forloop.first %}true{% else %}false{% endif %}"
+                        ></button>
+                      {%- endif -%}
+                    {%- endfor -%}
+                  </div>
+                {%- endif -%}
+              </div>
+            </li>
+          {%- endfor -%}
+        {%- endif -%}
+      </ul>
+    </div>
+
+    {%- if layout == 'carousel' and s.show_dots -%}
+      <div class="pgs__dots" data-pgs-dots aria-hidden="true"></div>
+    {%- endif -%}
+  </div>
+
+  <!-- Quick View Modal (shared, one per section) -->
+  <div class="pgs__modal-overlay" data-pgs-modal-overlay hidden>
+    <div class="pgs__modal" role="dialog" aria-modal="true" aria-label="Quick view">
+      <button type="button" class="pgs__modal-close" data-pgs-modal-close aria-label="Close quick view">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+      <div class="pgs__modal-image-wrap">
+        <img class="pgs__modal-image" data-pgs-modal-image src="" alt="">
+      </div>
+      <div class="pgs__modal-info">
+        <span class="pgs__modal-vendor" data-pgs-modal-vendor></span>
+        <h3 class="pgs__modal-title" data-pgs-modal-title></h3>
+        <div class="pgs__modal-price-row">
+          <span class="pgs__modal-price" data-pgs-modal-price></span>
+          <s class="pgs__modal-compare" data-pgs-modal-compare hidden></s>
+        </div>
+        <p class="pgs__modal-description" data-pgs-modal-description></p>
+        <form
+          class="pgs__modal-add-form"
+          data-pgs-modal-add-form
+          action="{{ routes.cart_add_url }}"
+          method="post"
+          enctype="multipart/form-data"
+        >
+          <input type="hidden" name="id" value="" data-pgs-modal-variant-input>
+          <button type="submit" class="pgs__modal-add-btn" data-pgs-modal-add-btn>Add to Cart</button>
+        </form>
+        <a href="#" class="pgs__modal-link" data-pgs-modal-link>View full details</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+{%- style -%}
+  #ProductShowcase-{{ sec_id }} {
+    --pgs-bg: {{ s.background_color }};
+    --pgs-heading-color: {{ s.heading_color }};
+    --pgs-subheading-color: {{ s.subheading_color }};
+    --pgs-card-bg: {{ s.card_bg_color }};
+    --pgs-card-border: {{ s.card_border_color }};
+    --pgs-card-radius: {{ s.card_border_radius }}px;
+    --pgs-price-color: {{ s.price_color }};
+    --pgs-compare-color: {{ s.compare_price_color }};
+    --pgs-badge-sale: {{ s.badge_sale_color }};
+    --pgs-badge-new: {{ s.badge_new_color }};
+    --pgs-button-bg: {{ s.button_bg_color }};
+    --pgs-button-icon: {{ s.button_icon_color }};
+    --pgs-accent: {{ s.accent_color }};
+    --pgs-spacing: {{ s.card_spacing }}px;
+    --pgs-padding-top: {{ s.section_padding_top }}px;
+    --pgs-padding-bottom: {{ s.section_padding_bottom }}px;
+    --pgs-cols-desktop: {{ s.columns_desktop }};
+    --pgs-cols-tablet: {{ s.columns_tablet }};
+    --pgs-cols-mobile: {{ s.columns_mobile }};
+    --pgs-swatch-size: {{ s.swatch_size }}px;
+    --pgs-swatch-radius: {{ s.swatch_border_radius }}%;
+    --pgs-swatch-border: {{ s.swatch_border_color }};
+    --pgs-swatch-active: {{ s.swatch_active_color }};
+    --pgs-image-aspect-ratio: {{ s.image_aspect_ratio }};
+  }
+{%- endstyle -%}
+
+<script src="{{ 'product-showcase.js' | asset_url }}" defer="defer"></script>
+
+{% schema %}
+{
+  "name": "Product Showcase",
+  "tag": "section",
+  "class": "section section--product-showcase",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Trending Tech Deals Of The Week"
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "Handpicked Bestsellers With Lightning-Fast Delivery."
+    },
+    {
+      "type": "richtext",
+      "id": "description",
+      "label": "Description (optional)"
+    },
+    {
+      "type": "select",
+      "id": "product_source",
+      "label": "Product source",
+      "info": "If you add Product blocks below, their products display automatically — you don't need to switch this to Manual.",
+      "options": [
+        { "value": "collection", "label": "Collection" },
+        { "value": "manual", "label": "Manually selected products" }
+      ],
+      "default": "collection"
+    },
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "Collection",
+      "info": "Used when Product source is set to Collection"
+    },
+    {
+      "type": "range",
+      "id": "product_count",
+      "label": "Number of products to show",
+      "min": 2,
+      "max": 24,
+      "step": 1,
+      "default": 8
+    },
+    {
+      "type": "checkbox",
+      "id": "show_all_products",
+      "label": "Show all products in collection",
+      "info": "Overrides the number above",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "layout_type",
+      "label": "Display mode",
+      "options": [
+        { "value": "grid", "label": "Grid" },
+        { "value": "carousel", "label": "Carousel" }
+      ],
+      "default": "carousel"
+    },
+    {
+      "type": "range",
+      "id": "columns_desktop",
+      "label": "Products per row / per view (desktop)",
+      "min": 2,
+      "max": 6,
+      "step": 1,
+      "default": 5
+    },
+    {
+      "type": "range",
+      "id": "columns_tablet",
+      "label": "Products per row / per view (tablet)",
+      "min": 2,
+      "max": 4,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "type": "range",
+      "id": "columns_mobile",
+      "label": "Products per row / per view (mobile)",
+      "min": 1,
+      "max": 3,
+      "step": 1,
+      "default": 2
+    },
+    {
+      "type": "range",
+      "id": "card_spacing",
+      "label": "Spacing between cards",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "card_border_radius",
+      "label": "Card corner radius",
+      "min": 0,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 8
+    },
+    {
+      "type": "checkbox",
+      "id": "card_shadow",
+      "label": "Enable card hover shadow / lift",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "image_aspect_ratio",
+      "label": "Image aspect ratio",
+      "options": [
+        { "value": "1/1", "label": "Square" },
+        { "value": "3/4", "label": "Portrait" },
+        { "value": "4/3", "label": "Landscape" },
+        { "value": "auto", "label": "Original image ratio" }
+      ],
+      "default": "1/1"
+    },
+    {
+      "type": "checkbox",
+      "id": "equal_card_height",
+      "label": "Equal height product cards",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Carousel Settings"
+    },
+    {
+      "type": "paragraph",
+      "content": "Only applies when Display mode is set to Carousel."
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_autoplay",
+      "label": "Enable autoplay",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "autoplay_speed",
+      "label": "Autoplay speed",
+      "min": 2,
+      "max": 10,
+      "step": 1,
+      "unit": "s",
+      "default": 4
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_loop",
+      "label": "Infinite loop",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_arrows",
+      "label": "Show navigation arrows",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_dots",
+      "label": "Show pagination dots",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Product Information"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_vendor",
+      "label": "Show vendor / product type",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_rating",
+      "label": "Show product rating",
+      "info": "Only displays for products with review data",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_compare_price",
+      "label": "Show compare-at price",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_sale_badge",
+      "label": "Show sale badge",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "badge_style",
+      "label": "Sale badge style",
+      "options": [
+        { "value": "amount_saved", "label": "Amount saved (e.g. Save $10)" },
+        { "value": "percent_off", "label": "Percent off (e.g. -20%)" }
+      ],
+      "default": "amount_saved"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_labels",
+      "label": "Show product labels",
+      "info": "Reads a 'new' tag, or a custom tag formatted as label:YourText",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_wishlist",
+      "label": "Show wishlist icon",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_quick_add",
+      "label": "Show Quick Add to Cart button",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_quick_view",
+      "label": "Show Quick Look / Quick View",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_swatches",
+      "label": "Show color swatches",
+      "info": "Only shows for products whose first option is named Color/Colour",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Swatch Style"
+    },
+    {
+      "type": "range",
+      "id": "swatch_size",
+      "label": "Swatch size",
+      "min": 16,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 22
+    },
+    {
+      "type": "range",
+      "id": "swatch_border_radius",
+      "label": "Swatch corner radius",
+      "min": 0,
+      "max": 50,
+      "step": 5,
+      "unit": "%",
+      "info": "50% = circle, 0% = square",
+      "default": 50
+    },
+    {
+      "type": "color",
+      "id": "swatch_border_color",
+      "label": "Swatch border color",
+      "default": "#dddddd"
+    },
+    {
+      "type": "color",
+      "id": "swatch_active_color",
+      "label": "Active swatch border color",
+      "default": "#111111"
+    },
+    {
+      "type": "header",
+      "content": "Colors & Style"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Section background",
+      "default": "#f5f5f5"
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Heading / title text color",
+      "default": "#111111"
+    },
+    {
+      "type": "color",
+      "id": "subheading_color",
+      "label": "Subheading / description color",
+      "default": "#666666"
+    },
+    {
+      "type": "color",
+      "id": "card_bg_color",
+      "label": "Card background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "card_border_color",
+      "label": "Card border color",
+      "default": "#ececec"
+    },
+    {
+      "type": "color",
+      "id": "price_color",
+      "label": "Price color",
+      "default": "#111111"
+    },
+    {
+      "type": "color",
+      "id": "compare_price_color",
+      "label": "Compare-at price color",
+      "default": "#d64545"
+    },
+    {
+      "type": "color",
+      "id": "badge_sale_color",
+      "label": "Sale badge color",
+      "default": "#d92b2b"
+    },
+    {
+      "type": "color",
+      "id": "badge_new_color",
+      "label": "Label badge color",
+      "default": "#1a56db"
+    },
+    {
+      "type": "color",
+      "id": "button_bg_color",
+      "label": "Quick add / Add to cart button color",
+      "default": "#12203f"
+    },
+    {
+      "type": "color",
+      "id": "button_icon_color",
+      "label": "Button icon / text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent color (arrows, active dot)",
+      "default": "#12203f"
+    },
+    {
+      "type": "header",
+      "content": "Section Spacing"
+    },
+    {
+      "type": "range",
+      "id": "section_padding_top",
+      "label": "Top padding",
+      "min": 0,
+      "max": 120,
+      "step": 5,
+      "unit": "px",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom",
+      "label": "Bottom padding",
+      "min": 0,
+      "max": 120,
+      "step": 5,
+      "unit": "px",
+      "default": 50
+    }
+  ],
+  "blocks": [
+    {
+      "type": "product",
+      "name": "Product",
+      "settings": [
+        {
+          "type": "product",
+          "id": "product",
+          "label": "Product"
+        },
+        {
+          "type": "text",
+          "id": "custom_label",
+          "label": "Custom label override (optional)",
+          "info": "e.g. Best Seller, Featured — overrides automatic New/tag-based labels"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product Showcase",
+      "category": "Product",
+      "settings": {
+        "product_source": "collection",
+        "layout_type": "carousel"
+      }
+    }
+  ]
+}
+{% endschema %}

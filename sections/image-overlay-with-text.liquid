@@ -24,87 +24,67 @@
     --border-radius: {{ section.settings.border_radius }}px;
   "
 >
+  <div class="premium-overlay__inner{% if section.settings.mobile_layout == 'text_first' %} premium-overlay__inner--mobile-reverse{% endif %}">
+    <div class="premium-overlay__media">
+      {% if image != blank %}
+        {{
+          image
+          | image_url: width: 2400
+          | image_tag:
+            loading: 'lazy',
+            sizes: '100vw',
+            widths: '600,900,1200,1600,2000,2400',
+            class: 'premium-overlay__image'
+        }}
 
-<div class="premium-overlay__inner{% if section.settings.mobile_layout == 'text_first' %} premium-overlay__inner--mobile-reverse{% endif %}">
+      {% else %}
+        {{ 'lifestyle-2' | placeholder_svg_tag: 'placeholder-svg' }}
+      {% endif %}
+    </div>
 
-<div class="premium-overlay__media">
+    <div
+      class="
+        premium-overlay__content
+        premium-overlay__content--{{ section.settings.overlay_position }}
+        premium-overlay__content--{{ section.settings.vertical_alignment }}
+        premium-overlay__content--mobile-{{ section.settings.mobile_text_alignment }}
+      "
+    >
+      <div class="premium-overlay__box">
+        {% if section.settings.subheading != blank %}
+          <div class="premium-overlay__subheading">
+            {{ section.settings.subheading }}
+          </div>
+        {% endif %}
 
-{% if image != blank %}
+        {% if section.settings.heading != blank %}
+          <h2 class="premium-overlay__heading">
+            {{ section.settings.heading }}
+          </h2>
+        {% endif %}
 
-{{ image
-| image_url: width: 2400
-| image_tag:
-loading:'lazy',
-sizes:'100vw',
-widths:'600,900,1200,1600,2000,2400',
-class:'premium-overlay__image'
-}}
+        {% if section.settings.text != blank %}
+          <div class="premium-overlay__text rte">
+            {{ section.settings.text }}
+          </div>
+        {% endif %}
 
-{% else %}
+        {% if section.settings.button_label != blank %}
+          {%- capture button_svg -%}<svg viewBox="0 0 24 24" fill="none" width="18" height="18"><path d="M5 12H19" stroke="currentColor" stroke-width="1.5"/><path d="M13 6L19 12L13 18" stroke="currentColor" stroke-width="1.5"/></svg>{%- endcapture -%}
 
-{{ 'lifestyle-2' | placeholder_svg_tag:'placeholder-svg' }}
-
-{% endif %}
-
-</div>
-
-<div class="
-premium-overlay__content
-premium-overlay__content--{{ section.settings.overlay_position }}
-premium-overlay__content--{{ section.settings.vertical_alignment }}
-premium-overlay__content--mobile-{{ section.settings.mobile_text_alignment }}
-">
-
-<div class="premium-overlay__box">
-
-{% if section.settings.subheading != blank %}
-
-<div class="premium-overlay__subheading">
-
-{{ section.settings.subheading }}
-
-</div>
-
-{% endif %}
-
-{% if section.settings.heading != blank %}
-
-<h2 class="premium-overlay__heading">
-
-{{ section.settings.heading }}
-
-</h2>
-
-{% endif %}
-
-{% if section.settings.text != blank %}
-
-<div class="premium-overlay__text rte">
-
-{{ section.settings.text }}
-
-</div>
-
-{% endif %}
-
-{% if section.settings.button_label != blank %}
-
-{%- capture button_svg -%}<svg viewBox="0 0 24 24" fill="none" width="18" height="18"><path d="M5 12H19" stroke="currentColor" stroke-width="1.5"/><path d="M13 6L19 12L13 18" stroke="currentColor" stroke-width="1.5"/></svg>{%- endcapture -%}
-
-{%- if section.settings.button_link != blank -%}
-<a href="{{ section.settings.button_link }}" class="premium-overlay__button"><span>{{ section.settings.button_label }}</span>{{ button_svg }}</a>
-{%- else -%}
-<a role="link" aria-disabled="true" class="premium-overlay__button"><span>{{ section.settings.button_label }}</span>{{ button_svg }}</a>
-{%- endif -%}
-
-{% endif %}
-
-</div>
-
-</div>
-
-</div>
-
+          {%- if section.settings.button_link != blank -%}
+            <a href="{{ section.settings.button_link }}" class="premium-overlay__button"
+              ><span>{{ section.settings.button_label }}</span>{{ button_svg -}}
+            </a>
+          {%- else -%}
+            <a role="link" aria-disabled="true" class="premium-overlay__button"
+              ><span>{{ section.settings.button_label }}</span>{{ button_svg -}}
+            </a>
+          {%- endif -%}
+        {% endif %}
+      </div>
+    </div>
+  </div>
 </section>
 
 <script src="{{ 'image-overlay-with-text.js' | asset_url }}" defer="defer"></script>
@@ -386,7 +366,8 @@ premium-overlay__content--mobile-{{ section.settings.mobile_text_alignment }}
 
   "presets": [
     {
-      "name": "Image Overlay with text"
+      "name": "Image Overlay with text",
+      "category": "Images"
     }
   ]
 }

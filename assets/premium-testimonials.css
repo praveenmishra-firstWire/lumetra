@@ -1,0 +1,276 @@
+/* Background image (if any) is applied via an inline style block in the
+   Liquid file, since it now comes from a "Background image" setting
+   rather than a hardcoded URL. background-size/position/repeat stay
+   here since they're harmless whether or not an image is actually set. */
+.pt-wrap {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.pt-wrap[data-hide-images="true"] .pt-track-wrapper {
+  display: none;
+}
+
+.pt-wrap {
+  overflow: hidden;
+  position: relative;
+}
+
+.pt-wrap.pt-divider {
+  border-bottom: 1px solid rgba(20, 20, 20, 0.1);
+}
+
+.pt-wrap .pt-page-width {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.pt-wrap .pt-title-wrapper {
+  margin-bottom: 3rem;
+}
+.pt-wrap .pt-title-wrapper.pt-no-heading { display: none; }
+.pt-wrap .pt-title-wrapper.pt-left { text-align: left; }
+.pt-wrap .pt-title-wrapper.pt-center { text-align: center; }
+.pt-wrap .pt-title-wrapper.pt-right { text-align: right; }
+
+.pt-wrap .pt-title {
+  margin: 0;
+  line-height: 1.15;
+}
+
+.pt-wrap .pt-highlight-marker { background: linear-gradient(180deg, transparent 60%, rgba(var(--pt-color-highlight), 0.55) 0); padding: 0 .1em; }
+.pt-wrap .pt-highlight-underline { text-decoration: underline; text-decoration-color: rgb(var(--pt-color-highlight)); text-decoration-thickness: 3px; text-underline-offset: 4px; }
+.pt-wrap .pt-highlight-bold-underline { text-decoration: underline; text-decoration-color: rgb(var(--pt-color-highlight)); text-decoration-thickness: 5px; text-underline-offset: 5px; }
+.pt-wrap .pt-highlight-solid-color { color: rgb(var(--pt-color-highlight)); }
+
+/* ---------- avatar track ---------- */
+.pt-wrap .pt-slider {
+  position: relative;
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.pt-wrap .pt-slider-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  max-width: 100%;
+}
+
+@media screen and (min-width: 750px) {
+  .pt-wrap .pt-slider-row { gap: 2rem; }
+}
+
+.pt-wrap .pt-track-wrapper {
+  position: relative;
+  overflow: hidden;
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 3rem 0;
+  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 8%, #000 92%, transparent 100%);
+  mask-image: linear-gradient(to right, transparent 0, #000 8%, #000 92%, transparent 100%);
+}
+
+.pt-wrap .pt-track {
+  display: flex;
+  align-items: center;
+  width: max-content;
+  transition: transform 0.5s cubic-bezier(.22,.61,.36,1);
+  will-change: transform;
+}
+
+.pt-wrap .pt-track.pt-no-transition {
+  transition: none;
+}
+
+/* During the invisible loop-reset jump, also kill each avatar's own
+   transition — otherwise the avatars that swap in/out of is-selected
+   visibly animate their scale/opacity for a frame, causing a flicker. */
+.pt-wrap .pt-track.pt-no-transition .pt-avatar {
+  transition: none;
+}
+
+.pt-wrap .pt-avatar {
+  flex: 0 0 auto;
+  width: 5.6rem;
+  height: 5.6rem;
+  margin: 0 1.2rem;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: grab;
+  /* margin is intentionally NOT transitioned: JS reads offsetLeft
+     synchronously right after the class change to center the track,
+     and an animated margin would make that read reflect the
+     pre-transition (stale) box size, throwing off the centering. */
+  transition: transform 0.4s cubic-bezier(.22,.61,.36,1), opacity 0.4s ease;
+  transform: scale(0.85);
+  opacity: 0.4;
+}
+
+.pt-wrap .pt-avatar:active {
+  cursor: grabbing;
+}
+
+.pt-wrap .pt-avatar-media {
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: hidden;
+  box-shadow: 0 1rem 1.5rem rgba(0, 0, 0, 0.06), 0 0.8rem 2.5rem rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.4s ease;
+}
+
+.pt-wrap .pt-avatar-media img,
+.pt-wrap .pt-avatar-media svg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.pt-wrap .pt-avatar.is-near {
+  margin: 0 1.5rem;
+  transform: scale(1.15);
+  opacity: 0.7;
+}
+
+.pt-wrap .pt-avatar.is-selected {
+  margin: 0 2rem;
+  transform: scale(1.7);
+  opacity: 1;
+  z-index: 2;
+  cursor: default;
+}
+
+.pt-wrap .pt-avatar.is-selected .pt-avatar-media {
+  box-shadow: 0 1.5rem 3rem rgba(0, 0, 0, 0.14), 0 0 0 0.3rem rgba(255, 255, 255, 0.9), 0 0 0 0.45rem rgba(var(--pt-color-highlight), 0.4);
+}
+
+@media screen and (min-width: 750px) {
+  .pt-wrap .pt-avatar { width: 6.4rem; height: 6.4rem; margin: 0 1.6rem; }
+  .pt-wrap .pt-avatar.is-near { margin: 0 1.9rem; }
+  .pt-wrap .pt-avatar.is-selected { margin: 0 3rem; transform: scale(1.9); }
+  .pt-wrap .pt-track-wrapper { padding: 4rem 0; }
+}
+
+.pt-wrap .pt-arrow {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  border: none;
+  background: none;
+  color: rgba(20, 20, 20, 0.75);
+  cursor: pointer;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+.pt-wrap .pt-arrow:hover {
+  color: rgba(20, 20, 20, 1);
+}
+.pt-wrap .pt-arrow--prev:hover { transform: translateX(-3px); }
+.pt-wrap .pt-arrow--next:hover { transform: translateX(3px); }
+.pt-wrap .pt-arrow svg {
+  width: 2rem;
+  height: 2rem;
+}
+
+@media screen and (max-width: 749px) {
+  .pt-wrap .pt-arrow svg { width: 1.6rem; height: 1.6rem; }
+}
+
+/* ---------- content / quote ---------- */
+.pt-wrap .pt-content-wrap {
+  position: relative;
+  max-width: 72rem;
+  margin: 2rem auto 0;
+  text-align: center;
+}
+
+.pt-wrap .pt-content {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease, transform 0.4s ease;
+  transform: translateY(6px);
+}
+
+.pt-wrap .pt-content.is-active {
+  position: relative;
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.pt-wrap .pt-quote-icon {
+  margin-bottom: 1rem;
+  line-height: 1;
+}
+.pt-wrap .pt-quote-icon svg { width: 3rem; height: 3rem; color: rgba(20, 20, 20, 0.8); }
+
+.pt-wrap .rating { display: inline-block; margin: 0 0 1rem; }
+.pt-wrap .rating-star {
+  --letter-spacing: 0.3;
+  --percent: calc((var(--rating) / 5) * 100%);
+  letter-spacing: calc(var(--letter-spacing) * 1rem);
+  line-height: 1;
+  display: inline-block;
+  margin: 0;
+}
+.pt-wrap .rating-star::before {
+  content: '\2605\2605\2605\2605\2605';
+  background: linear-gradient(90deg, rgb(var(--pt-color-rating)) var(--percent), rgba(20, 20, 20, 0.15) var(--percent));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+.pt-wrap .pt-text {
+  line-height: 1.6;
+}
+.pt-wrap .pt-text p { margin: 0; }
+.pt-wrap .pt-text p + p { margin-top: 1rem; }
+
+.pt-wrap .pt-author {
+  display: block;
+  margin-top: 1.5rem;
+  font-style: italic;
+  color: rgba(20, 20, 20, 0.7);
+}
+.pt-wrap .pt-author::before { content: '\2013\0020'; }
+
+@media screen and (max-width: 630px) {
+  .pt-wrap .pt-arrow {
+    display: none;
+  }
+
+  .pt-wrap .pt-slider-row {
+    gap: 0;
+  }
+
+  .pt-wrap .pt-track-wrapper {
+    padding: 2rem 0;
+  }
+
+  .pt-wrap .pt-avatar {
+    width: 3.6rem;
+    height: 3.6rem;
+    margin: 0 0.5rem;
+  }
+
+  .pt-wrap .pt-avatar.is-near {
+    margin: 0 0.6rem;
+  }
+
+  .pt-wrap .pt-avatar.is-selected {
+    margin: 0 0.9rem;
+    transform: scale(1.4);
+  }
+}
