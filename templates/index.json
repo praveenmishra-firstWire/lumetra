@@ -9,11 +9,6 @@
  */
 {
   "sections": {
-    "main": {
-      "type": "hello-world",
-      "disabled": true,
-      "settings": {}
-    },
     "video_EbLEge": {
       "type": "video",
       "name": "Video",
@@ -21,7 +16,7 @@
         "video_url": "",
         "placeholder_bg_1": "#090a0f",
         "placeholder_bg_2": "#121526",
-        "placeholder_accent": "#7274D9",
+        "placeholder_accent": "#7274d9",
         "placeholder_accent_2": "#ec4899",
         "glass_opacity": 15,
         "glass_border_opacity": 25,
@@ -106,11 +101,80 @@
         "padding_top": 70,
         "padding_bottom": 70
       }
+    },
+    "rich_text_3zRAat": {
+      "type": "rich-text",
+      "blocks": {
+        "heading_BHahGJ": {
+          "type": "heading",
+          "settings": {
+            "heading": "<p>Add heading here.</p>",
+            "heading_size": "medium",
+            "heading_tag": "h2",
+            "enable_highlight": true,
+            "highlight_style": "solid_color"
+          }
+        },
+        "subheading_nW87Hg": {
+          "type": "subheading",
+          "settings": {
+            "subheading": "<p>Add a tagline</p>",
+            "subheading_size": "small",
+            "enable_secondary_color": false,
+            "enable_highlight": false,
+            "highlight_style": "marker"
+          }
+        },
+        "text_YmwiQB": {
+          "type": "text",
+          "settings": {
+            "description": "<p>Add description here.</p>",
+            "description_size": "medium",
+            "enable_secondary_color": false,
+            "enable_highlight": true,
+            "highlight_style": "heavy_squiggle"
+          }
+        },
+        "buttons_rk6LKM": {
+          "type": "buttons",
+          "settings": {
+            "button_size": "medium",
+            "button_label": "Button label",
+            "button_link": "",
+            "button_style_underline": false,
+            "button_label_2": "",
+            "button_link_2": "",
+            "button_style_underline_2": false
+          }
+        }
+      },
+      "block_order": [
+        "heading_BHahGJ",
+        "subheading_nW87Hg",
+        "text_YmwiQB",
+        "buttons_rk6LKM"
+      ],
+      "name": "Rich text",
+      "settings": {
+        "content_alignment": "center",
+        "content_width": 700,
+        "color_background": "#FFFFFF",
+        "color_text": "#1A1A1A",
+        "color_secondary_text": "#6B6B6B",
+        "color_highlight": "#D97757",
+        "color_button_background": "#1A1A1A",
+        "color_button_text": "#FFFFFF",
+        "color_button_background_secondary": "#FFFFFF",
+        "color_button_text_secondary": "#1A1A1A",
+        "padding_top": 60,
+        "padding_bottom": 60,
+        "enable_animation": true
+      }
     }
   },
   "order": [
-    "main",
     "video_EbLEge",
-    "icons_with_text_Pjpah7"
+    "icons_with_text_Pjpah7",
+    "rich_text_3zRAat"
   ]
 }
