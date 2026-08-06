@@ -1,0 +1,470 @@
+{{ 'rich-text.css' | asset_url | stylesheet_tag }}
+
+{%- liquid
+  assign rt_id = section.id
+-%}
+
+<div
+  class="rich-text"
+  id="rich-text-{{ rt_id }}"
+  style="
+    --rt-bg: {{ section.settings.color_background }};
+    --rt-text: {{ section.settings.color_text }};
+    --rt-secondary-text: {{ section.settings.color_secondary_text }};
+    --rt-highlight: {{ section.settings.color_highlight }};
+    --rt-btn-bg: {{ section.settings.color_button_background }};
+    --rt-btn-text: {{ section.settings.color_button_text }};
+    --rt-btn-bg-2: {{ section.settings.color_button_background_secondary }};
+    --rt-btn-text-2: {{ section.settings.color_button_text_secondary }};
+    --rt-content-width: {{ section.settings.content_width }}px;
+    --rt-padding-top: {{ section.settings.padding_top }}px;
+    --rt-padding-bottom: {{ section.settings.padding_bottom }}px;
+  "
+  data-animate="{{ section.settings.enable_animation }}"
+>
+  <div class="rich-text__inner rich-text__inner--{{ section.settings.content_alignment }}">
+    {%- for block in section.blocks -%}
+      {%- case block.type -%}
+        {%- when 'heading' -%}
+          {%- liquid
+            assign rt_heading_html = block.settings.heading
+            if block.settings.enable_highlight and rt_heading_html contains '<em>'
+              assign rt_open = '<span class="rt-highlight rt-highlight--' | append: block.settings.highlight_style | append: '">'
+              assign rt_heading_html = rt_heading_html | replace: '<em>', rt_open | replace: '</em>', '</span>'
+            endif
+          -%}
+          <div class="rich-text__block" {{ block.shopify_attributes }}>
+            {%- case block.settings.heading_tag -%}
+              {%- when 'h1' -%}
+                <h1 class="rich-text__heading rich-text__heading--{{ block.settings.heading_size }}">
+                  {{ rt_heading_html }}
+                </h1>
+              {%- when 'h2' -%}
+                <h2 class="rich-text__heading rich-text__heading--{{ block.settings.heading_size }}">
+                  {{ rt_heading_html }}
+                </h2>
+              {%- when 'h3' -%}
+                <h3 class="rich-text__heading rich-text__heading--{{ block.settings.heading_size }}">
+                  {{ rt_heading_html }}
+                </h3>
+              {%- when 'h4' -%}
+                <h4 class="rich-text__heading rich-text__heading--{{ block.settings.heading_size }}">
+                  {{ rt_heading_html }}
+                </h4>
+              {%- when 'h5' -%}
+                <h5 class="rich-text__heading rich-text__heading--{{ block.settings.heading_size }}">
+                  {{ rt_heading_html }}
+                </h5>
+              {%- when 'h6' -%}
+                <h6 class="rich-text__heading rich-text__heading--{{ block.settings.heading_size }}">
+                  {{ rt_heading_html }}
+                </h6>
+            {%- endcase -%}
+          </div>
+
+        {%- when 'subheading' -%}
+          {%- liquid
+            assign rt_subheading_html = block.settings.subheading
+            if block.settings.enable_highlight and rt_subheading_html contains '<em>'
+              assign rt_open = '<span class="rt-highlight rt-highlight--' | append: block.settings.highlight_style | append: '">'
+              assign rt_subheading_html = rt_subheading_html | replace: '<em>', rt_open | replace: '</em>', '</span>'
+            endif
+          -%}
+          <div
+            class="rich-text__block rich-text__subheading rich-text__subheading--{{ block.settings.subheading_size }}{% if block.settings.enable_secondary_color %} rich-text__subheading--secondary{% endif %}"
+            {{ block.shopify_attributes }}
+          >
+            {{ rt_subheading_html }}
+          </div>
+
+        {%- when 'text' -%}
+          {%- liquid
+            assign rt_text_html = block.settings.description
+            if block.settings.enable_highlight and rt_text_html contains '<em>'
+              assign rt_open = '<span class="rt-highlight rt-highlight--' | append: block.settings.highlight_style | append: '">'
+              assign rt_text_html = rt_text_html | replace: '<em>', rt_open | replace: '</em>', '</span>'
+            endif
+          -%}
+          <div
+            class="rich-text__block rich-text__text rich-text__text--{{ block.settings.description_size }}{% if block.settings.enable_secondary_color %} rich-text__text--secondary{% endif %}"
+            {{ block.shopify_attributes }}
+          >
+            {{ rt_text_html }}
+          </div>
+
+        {%- when 'buttons' -%}
+          <div class="rich-text__block rich-text__buttons" {{ block.shopify_attributes }}>
+            {%- if block.settings.button_label != blank -%}
+              <a
+                {% if block.settings.button_link != blank %}
+                  href="{{ block.settings.button_link }}"
+                {% else %}
+                  role="link" aria-disabled="true"
+                {% endif %}
+                class="rich-text__button rich-text__button--{{ block.settings.button_size }}{% if block.settings.button_style_underline %} rich-text__button--underline{% endif %}"
+              >
+                {{ block.settings.button_label }}
+              </a>
+            {%- endif -%}
+
+            {%- if block.settings.button_label_2 != blank -%}
+              <a
+                {% if block.settings.button_link_2 != blank %}
+                  href="{{ block.settings.button_link_2 }}"
+                {% else %}
+                  role="link" aria-disabled="true"
+                {% endif %}
+                class="rich-text__button rich-text__button--secondary rich-text__button--{{ block.settings.button_size }}{% if block.settings.button_style_underline_2 %} rich-text__button--underline{% endif %}"
+              >
+                {{ block.settings.button_label_2 }}
+              </a>
+            {%- endif -%}
+          </div>
+
+        {%- when 'custom_liquid' -%}
+          <div class="rich-text__block rich-text__custom-liquid" {{ block.shopify_attributes }}>
+            {{ block.settings.custom_liquid }}
+          </div>
+      {%- endcase -%}
+    {%- endfor -%}
+  </div>
+</div>
+
+<script src="{{ 'rich-text.js' | asset_url }}" defer="defer"></script>
+
+{% schema %}
+{
+  "name": "Rich text",
+  "tag": "section",
+  "class": "section-rich-text",
+  "settings": [
+    { "type": "header", "content": "Layout" },
+    {
+      "type": "select",
+      "id": "content_alignment",
+      "label": "Content alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "range",
+      "id": "content_width",
+      "label": "Content width",
+      "min": 400,
+      "max": 1200,
+      "step": 20,
+      "unit": "px",
+      "default": 700
+    },
+    { "type": "header", "content": "Colors" },
+    { "type": "color", "id": "color_background", "label": "Background", "default": "#FFFFFF" },
+    { "type": "color", "id": "color_text", "label": "Text", "default": "#1A1A1A" },
+    {
+      "type": "color",
+      "id": "color_secondary_text",
+      "label": "Secondary text",
+      "info": "Used when \"Enable secondary color\" is on for a Subheading or Text block.",
+      "default": "#6B6B6B"
+    },
+    {
+      "type": "color",
+      "id": "color_highlight",
+      "label": "Highlight color",
+      "info": "Used wherever \"Enable highlight\" is on. Italicize text in a block's editor to apply it.",
+      "default": "#D97757"
+    },
+    { "type": "header", "content": "Buttons" },
+    { "type": "color", "id": "color_button_background", "label": "Button background", "default": "#1A1A1A" },
+    { "type": "color", "id": "color_button_text", "label": "Button text", "default": "#FFFFFF" },
+    {
+      "type": "color",
+      "id": "color_button_background_secondary",
+      "label": "Secondary button background",
+      "default": "#FFFFFF"
+    },
+    { "type": "color", "id": "color_button_text_secondary", "label": "Secondary button text", "default": "#1A1A1A" },
+    { "type": "header", "content": "Section padding" },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 60
+    },
+    { "type": "header", "content": "Animation" },
+    { "type": "checkbox", "id": "enable_animation", "label": "Enable scroll-in animation", "default": true }
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "name": "Heading",
+      "settings": [
+        {
+          "type": "richtext",
+          "id": "heading",
+          "label": "Heading",
+          "default": "<p>Truly love the skin you're in</p>"
+        },
+        {
+          "type": "select",
+          "id": "heading_size",
+          "label": "Heading size",
+          "options": [
+            { "value": "small", "label": "Small" },
+            { "value": "medium", "label": "Medium" },
+            { "value": "large", "label": "Large" }
+          ],
+          "default": "medium"
+        },
+        {
+          "type": "select",
+          "id": "heading_tag",
+          "label": "Heading tag",
+          "info": "Specify heading code types for SEO and search engines for crawling purposes.",
+          "options": [
+            { "value": "h1", "label": "H1" },
+            { "value": "h2", "label": "H2" },
+            { "value": "h3", "label": "H3" },
+            { "value": "h4", "label": "H4" },
+            { "value": "h5", "label": "H5" },
+            { "value": "h6", "label": "H6" }
+          ],
+          "default": "h2"
+        },
+        { "type": "header", "content": "Highlight" },
+        {
+          "type": "checkbox",
+          "id": "enable_highlight",
+          "label": "Enable highlight",
+          "default": true
+        },
+        {
+          "type": "paragraph",
+          "content": "Please use italic formatting by selecting the text you want to highlight and then clicking the italic (I) button in the editor."
+        },
+        {
+          "type": "select",
+          "id": "highlight_style",
+          "label": "Highlight style",
+          "options": [
+            { "value": "marker", "label": "Marker" },
+            { "value": "circle", "label": "Circle" },
+            { "value": "underline", "label": "Underline" },
+            { "value": "bold_underline", "label": "Bold underline" },
+            { "value": "modern_underline", "label": "Modern underline" },
+            { "value": "sketch_underline", "label": "Sketch underline" },
+            { "value": "squiggle", "label": "Squiggle" },
+            { "value": "heavy_squiggle", "label": "Heavy squiggle" },
+            { "value": "solid_color", "label": "Solid color" }
+          ],
+          "default": "solid_color"
+        }
+      ]
+    },
+    {
+      "type": "subheading",
+      "name": "Subheading",
+      "settings": [
+        {
+          "type": "richtext",
+          "id": "subheading",
+          "label": "Subheading",
+          "default": "<p>Add a tagline</p>"
+        },
+        {
+          "type": "select",
+          "id": "subheading_size",
+          "label": "Subheading size",
+          "options": [
+            { "value": "small", "label": "Small" },
+            { "value": "medium", "label": "Medium" },
+            { "value": "large", "label": "Large" }
+          ],
+          "default": "small"
+        },
+        {
+          "type": "checkbox",
+          "id": "enable_secondary_color",
+          "label": "Enable secondary color",
+          "default": false
+        },
+        { "type": "header", "content": "Highlight" },
+        {
+          "type": "checkbox",
+          "id": "enable_highlight",
+          "label": "Enable highlight",
+          "default": false
+        },
+        {
+          "type": "paragraph",
+          "content": "Please use italic formatting by selecting the text you want to highlight and then clicking the italic (I) button in the editor."
+        },
+        {
+          "type": "select",
+          "id": "highlight_style",
+          "label": "Highlight style",
+          "options": [
+            { "value": "marker", "label": "Marker" },
+            { "value": "circle", "label": "Circle" },
+            { "value": "underline", "label": "Underline" },
+            { "value": "bold_underline", "label": "Bold underline" },
+            { "value": "modern_underline", "label": "Modern underline" },
+            { "value": "sketch_underline", "label": "Sketch underline" },
+            { "value": "squiggle", "label": "Squiggle" },
+            { "value": "heavy_squiggle", "label": "Heavy squiggle" },
+            { "value": "solid_color", "label": "Solid color" }
+          ],
+          "default": "marker"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "name": "Text",
+      "settings": [
+        {
+          "type": "richtext",
+          "id": "description",
+          "label": "Description",
+          "default": "<p>Our vision is to give melanin rich skin the attention it deserves. We don't want to just <em>nurture</em> your skin\u2014we want you to discover the <em>beauty</em> that lies within.</p>"
+        },
+        {
+          "type": "select",
+          "id": "description_size",
+          "label": "Description size",
+          "options": [
+            { "value": "small", "label": "Small" },
+            { "value": "medium", "label": "Medium" },
+            { "value": "large", "label": "Large" }
+          ],
+          "default": "medium"
+        },
+        {
+          "type": "checkbox",
+          "id": "enable_secondary_color",
+          "label": "Enable secondary color",
+          "default": false
+        },
+        { "type": "header", "content": "Highlight" },
+        {
+          "type": "checkbox",
+          "id": "enable_highlight",
+          "label": "Enable highlight",
+          "default": true
+        },
+        {
+          "type": "paragraph",
+          "content": "Please use italic formatting by selecting the text you want to highlight and then clicking the italic (I) button in the editor."
+        },
+        {
+          "type": "select",
+          "id": "highlight_style",
+          "label": "Highlight style",
+          "options": [
+            { "value": "marker", "label": "Marker" },
+            { "value": "circle", "label": "Circle" },
+            { "value": "underline", "label": "Underline" },
+            { "value": "bold_underline", "label": "Bold underline" },
+            { "value": "modern_underline", "label": "Modern underline" },
+            { "value": "sketch_underline", "label": "Sketch underline" },
+            { "value": "squiggle", "label": "Squiggle" },
+            { "value": "heavy_squiggle", "label": "Heavy squiggle" },
+            { "value": "solid_color", "label": "Solid color" }
+          ],
+          "default": "heavy_squiggle"
+        }
+      ]
+    },
+    {
+      "type": "buttons",
+      "name": "Buttons",
+      "settings": [
+        {
+          "type": "select",
+          "id": "button_size",
+          "label": "Button size",
+          "options": [
+            { "value": "small", "label": "Small" },
+            { "value": "medium", "label": "Medium" },
+            { "value": "large", "label": "Large" }
+          ],
+          "default": "medium"
+        },
+        { "type": "header", "content": "Button" },
+        {
+          "type": "text",
+          "id": "button_label",
+          "label": "Button label",
+          "default": "Button label",
+          "info": "Leave the label blank to hide the button."
+        },
+        {
+          "type": "url",
+          "id": "button_link",
+          "label": "Button link"
+        },
+        {
+          "type": "checkbox",
+          "id": "button_style_underline",
+          "label": "Use underline button style",
+          "default": false
+        },
+        { "type": "header", "content": "Secondary button" },
+        {
+          "type": "text",
+          "id": "button_label_2",
+          "label": "Button label",
+          "info": "Leave the label blank to hide the button."
+        },
+        {
+          "type": "url",
+          "id": "button_link_2",
+          "label": "Button link"
+        },
+        {
+          "type": "checkbox",
+          "id": "button_style_underline_2",
+          "label": "Use underline button style",
+          "default": false
+        }
+      ]
+    },
+    {
+      "type": "custom_liquid",
+      "name": "Custom Liquid",
+      "settings": [
+        {
+          "type": "liquid",
+          "id": "custom_liquid",
+          "label": "Custom Liquid",
+          "info": "Add app snippets or other Liquid code to create advanced customizations."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Rich text",
+      "category": "Text",
+      "blocks": [{ "type": "heading" }, { "type": "subheading" }, { "type": "text" }, { "type": "buttons" }]
+    }
+  ]
+}
+{% endschema %}

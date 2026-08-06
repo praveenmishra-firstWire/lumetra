@@ -1,0 +1,134 @@
+/* ==========================================================================
+   Scrolling Promotion section — styles
+   An infinite horizontal marquee. Content is rendered twice by Liquid
+   (two "sets" back to back) so the CSS animation can loop seamlessly by
+   translating exactly -50% — no JS is required for the loop itself.
+   ========================================================================== */
+
+.scrolling-promo {
+  background: var(--sp-bg);
+  color: var(--sp-text);
+  padding-top: var(--sp-padding-top, 16px);
+  padding-bottom: var(--sp-padding-bottom, 16px);
+  overflow: hidden;
+}
+
+.scrolling-promo__viewport {
+  overflow: hidden;
+  width: 100%;
+}
+
+.scrolling-promo__track {
+  display: flex;
+  width: max-content;
+  animation: scrolling-promo-left var(--sp-duration, 30s) linear infinite;
+  will-change: transform;
+}
+
+.scrolling-promo--right .scrolling-promo__track {
+  animation-name: scrolling-promo-right;
+}
+
+.scrolling-promo__track.is-paused {
+  animation-play-state: paused;
+}
+
+.scrolling-promo--pause-hover .scrolling-promo__viewport:hover .scrolling-promo__track {
+  animation-play-state: paused;
+}
+
+@keyframes scrolling-promo-left {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+@keyframes scrolling-promo-right {
+  from { transform: translateX(-50%); }
+  to { transform: translateX(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scrolling-promo__track {
+    animation: none;
+    transform: none;
+  }
+}
+
+.scrolling-promo__set {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: var(--sp-gap, 40px);
+  padding-right: var(--sp-gap, 40px);
+}
+
+.scrolling-promo__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  white-space: nowrap;
+  color: inherit;
+  text-decoration: none;
+}
+.scrolling-promo__item[href]:hover {
+  opacity: 0.75;
+}
+
+.scrolling-promo__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--sp-icon, currentColor);
+  flex-shrink: 0;
+}
+.scrolling-promo__icon svg,
+.scrolling-promo__icon img {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.scrolling-promo__icon--small { width: 16px; height: 16px; }
+.scrolling-promo__icon--medium { width: 20px; height: 20px; }
+.scrolling-promo__icon--large { width: 28px; height: 28px; }
+
+.scrolling-promo__text {
+  line-height: 1.3;
+}
+
+.scrolling-promo__item--image {
+  line-height: 0;
+}
+.scrolling-promo__image {
+  width: auto;
+  max-width: none;
+  display: block;
+  object-fit: contain;
+}
+
+.scrolling-promo__placeholder-wrapper {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(128, 128, 128, 0.12);
+  background-color: color-mix(in srgb, var(--sp-text, currentColor) 12%, transparent);
+  border: 1px dashed rgba(128, 128, 128, 0.35);
+  border: 1px dashed color-mix(in srgb, var(--sp-text, currentColor) 35%, transparent);
+  border-radius: 6px;
+  box-sizing: border-box;
+}
+
+.scrolling-promo__placeholder-svg {
+  width: 55%;
+  height: 55%;
+  fill: var(--sp-text, currentColor);
+  opacity: 0.65;
+}
+
+/* ---------- Responsive ---------- */
+@media screen and (max-width: 749px) {
+  .scrolling-promo__set {
+    gap: calc(var(--sp-gap, 40px) * 0.6);
+    padding-right: calc(var(--sp-gap, 40px) * 0.6);
+  }
+  .scrolling-promo__icon--large { width: 24px; height: 24px; }
+}
